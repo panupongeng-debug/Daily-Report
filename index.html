@@ -13,114 +13,110 @@
 							</style>
                         </head>
                         <body>
-                            <!-- ══════════════════════════════════════════════
-     Daily Construction Report  v5 — PWA Edition
-     ══════════════════════════════════════════════ -->
-
-<!-- PWA Meta & Manifest (inline) -->
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="theme-color" content="#1f2937">
+                            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#1e3a8a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Daily Report">
 <link rel="manifest" id="pwa-manifest">
-<link rel="apple-touch-icon" id="pwa-icon">
 
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f5; overflow:hidden; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f0f4f8; overflow:hidden; }
 
     /* ── HEADER ── */
-    .header { background:#1f2937; color:white; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 4px rgba(0,0,0,.2); }
-    .header-left { display:flex; align-items:center; gap:8px; }
-    .header-title { font-size:16px; font-weight:600; }
-    .install-btn { background:rgba(255,255,255,.15); color:white; border:1px solid rgba(255,255,255,.3); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; display:none; }
+    .header { background:#1e3a8a; color:white; padding:10px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+    .header-left { display:flex; align-items:center; gap:10px; }
+    .header-logo { height:32px; object-fit:contain; filter:brightness(0) invert(1); }
+    .install-btn { background:rgba(255,255,255,.18); color:white; border:1px solid rgba(255,255,255,.35); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; display:none; }
     .install-btn.show { display:block; }
 
     /* ── TABS ── */
-    .tabs { display:flex; background:white; border-bottom:1px solid #e5e7eb; padding:0 16px; }
-    .tab { padding:12px 20px; border:none; background:none; cursor:pointer; font-size:14px; color:#6b7280; border-bottom:3px solid transparent; transition:all .3s; }
-    .tab.active { color:#1f2937; border-bottom-color:#1f2937; font-weight:600; }
+    .tabs { display:flex; background:white; border-bottom:2px solid #e5e7eb; padding:0 16px; }
+    .tab { padding:11px 20px; border:none; background:none; cursor:pointer; font-size:14px; color:#6b7280; border-bottom:3px solid transparent; transition:all .25s; font-weight:500; }
+    .tab.active { color:#1e3a8a; border-bottom-color:#1e3a8a; font-weight:700; }
 
-    /* ── CONTAINER ── */
-    .container { display:flex; height:calc(100vh - 110px); padding:16px; overflow:hidden; }
-    .section { background:white; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.1); display:none; flex:1; overflow-y:auto; padding:20px; }
+    /* ── LAYOUT ── */
+    .container { display:flex; height:calc(100vh - 108px); padding:14px; overflow:hidden; }
+    .section { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.1); display:none; flex:1; overflow-y:auto; padding:18px; }
     .section.active { display:block; }
 
     /* ── FORM ── */
-    .form-group { margin-bottom:18px; }
-    .form-section-header { background:#2d3748; color:white; padding:10px 14px; border-radius:4px; font-weight:600; font-size:13px; margin-bottom:10px; margin-top:14px; }
+    .form-group { margin-bottom:16px; }
+    .form-section-header { background:#1e3a8a; color:white; padding:9px 14px; border-radius:5px; font-weight:700; font-size:13px; margin-bottom:10px; margin-top:14px; letter-spacing:.3px; }
     .form-section-header:first-of-type { margin-top:0; }
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
     .form-row.full { grid-template-columns:1fr; }
     .form-row.personnel { grid-template-columns:2fr 70px 38px; gap:8px; margin-bottom:8px; align-items:flex-end; }
     .form-row.equipment { grid-template-columns:1fr 38px; gap:8px; margin-bottom:8px; align-items:flex-end; }
     .form-field { display:flex; flex-direction:column; }
-    .form-field label { font-size:12px; font-weight:500; color:#374151; margin-bottom:4px; }
-    .form-field input,.form-field select,.form-field textarea { padding:9px 11px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; font-family:inherit; }
+    .form-field label { font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+    .form-field input,.form-field select,.form-field textarea { padding:9px 11px; border:1.5px solid #d1d5db; border-radius:5px; font-size:13px; font-family:inherit; transition:border-color .2s; }
+    .form-field input:focus,.form-field select:focus,.form-field textarea:focus { outline:none; border-color:#1e3a8a; box-shadow:0 0 0 3px rgba(30,58,138,.1); }
     .form-field textarea { resize:vertical; min-height:88px; }
 
     /* ── BUTTONS ── */
-    .add-btn { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; padding:8px 12px; border-radius:4px; font-size:13px; cursor:pointer; margin-top:6px; width:100%; }
-    .delete-btn { background:#fee2e2; color:#dc2626; border:1px solid #fecaca; min-width:38px; height:38px; border-radius:4px; cursor:pointer; font-size:13px; }
+    .add-btn { background:#f0f4ff; color:#1e3a8a; border:1.5px dashed #93c5fd; padding:8px 12px; border-radius:5px; font-size:13px; font-weight:600; cursor:pointer; margin-top:6px; width:100%; transition:all .2s; }
+    .add-btn:active { background:#dbeafe; }
+    .delete-btn { background:#fee2e2; color:#dc2626; border:1px solid #fecaca; min-width:38px; height:38px; border-radius:5px; cursor:pointer; font-size:13px; }
     .buttons { display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid #e5e7eb; }
-    .btn { flex:1; padding:11px 14px; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
-    .btn:active { transform:scale(.97); }
-    .btn-dark    { background:#1f2937; color:white; }
-    .btn-green   { background:#10b981; color:white; }
-    .btn-blue    { background:#2563eb; color:white; }
-    .btn-line    { background:#06c755; color:white; }
-    .btn-gray    { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; }
+    .btn { flex:1; padding:11px 14px; border:none; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn:active { transform:scale(.97); opacity:.9; }
+    .btn-dark  { background:#1e3a8a; color:white; }
+    .btn-green { background:#10b981; color:white; }
+    .btn-blue  { background:#2563eb; color:white; }
+    .btn-red   { background:#dc2626; color:white; }
+    .btn-line  { background:#06c755; color:white; }
+    .btn-gray  { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; }
 
     /* ── DRAFT BOX ── */
-    .draft-section { background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px; margin-bottom:16px; }
-    .draft-title { font-weight:600; color:#1e40af; margin-bottom:10px; font-size:13px; }
+    .draft-section { background:#eff6ff; border:1.5px solid #93c5fd; border-radius:8px; padding:14px; margin-bottom:16px; }
+    .draft-title { font-weight:700; color:#1e40af; margin-bottom:10px; font-size:13px; }
     .draft-buttons { display:flex; gap:10px; }
     .draft-buttons .btn { padding:9px; font-size:12px; }
 
     /* ── PHOTOS ── */
     .photo-upload { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:10px; }
-    .photo-slot { aspect-ratio:1; border:2px dashed #d1d5db; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:#f9fafb; position:relative; overflow:hidden; font-size:24px; }
+    .photo-slot { aspect-ratio:1; border:2px dashed #93c5fd; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:#f0f4ff; position:relative; overflow:hidden; font-size:24px; transition:border-color .2s; }
     .photo-slot img { width:100%; height:100%; object-fit:cover; }
     .photo-slot input { display:none; }
     .photo-del { position:absolute; top:4px; right:4px; background:rgba(0,0,0,.65); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:13px; display:none; align-items:center; justify-content:center; }
     .photo-slot:hover .photo-del { display:flex; }
 
     /* ── PREVIEW ── */
-    .preview-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid #2d3748; gap:10px; }
-    .preview-top h2 { font-size:18px; font-weight:700; color:#1f2937; }
+    .preview-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; padding-bottom:14px; border-bottom:2.5px solid #1e3a8a; gap:10px; }
+    .preview-top h2 { font-size:17px; font-weight:800; color:#1e3a8a; }
     .preview-top p { font-size:11px; color:#6b7280; margin-top:3px; }
-    .preview-actions { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+    .preview-actions { display:flex; flex-direction:column; gap:7px; flex-shrink:0; }
     .preview-table { width:100%; border-collapse:collapse; border:1px solid #d1d5db; margin-bottom:2px; }
     .preview-table tr { border-bottom:1px solid #d1d5db; }
-    .preview-table td { padding:9px 12px; font-size:13px; }
-    .preview-table td:first-child { font-weight:600; color:#374151; width:32%; background:#f9fafb; }
-    .preview-card { background:#f9fafb; padding:12px; border:1px solid #d1d5db; min-height:52px; white-space:pre-wrap; font-size:13px; }
+    .preview-table td { padding:8px 12px; font-size:13px; }
+    .preview-table td:first-child { font-weight:600; color:#374151; width:32%; background:#f0f4ff; }
+    .preview-card { background:#f9fafb; padding:11px; border:1px solid #d1d5db; min-height:50px; white-space:pre-wrap; font-size:13px; }
     .prev-photos-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
     .prev-photo { width:100%; max-height:240px; object-fit:contain; border:1px solid #d1d5db; border-radius:4px; }
 
     /* ── TOAST ── */
-    .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#1f2937; color:white; padding:10px 20px; border-radius:8px; font-size:13px; z-index:9999; opacity:0; transition:opacity .3s; pointer-events:none; }
+    .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#1e3a8a; color:white; padding:10px 20px; border-radius:8px; font-size:13px; z-index:9999; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; }
     .toast.show { opacity:1; }
-
     ::-webkit-scrollbar { width:5px; }
-    ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
+    ::-webkit-scrollbar-thumb { background:#93c5fd; border-radius:4px; }
 </style>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- HEADER -->
 <div class="header">
     <div class="header-left">
-        <span style="font-size:20px">🏗️</span>
-        <span class="header-title">Daily Report</span>
+        <img class="header-logo" id="headerLogo"
+             src="https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png"
+             onerror="this.style.display='none';document.getElementById('headerFallback').style.display='flex'"
+             alt="REPCO NEX">
+        <span id="headerFallback" style="display:none;align-items:center;gap:6px;font-size:15px;font-weight:800;letter-spacing:.5px">🏗️ REPCO NEX</span>
     </div>
     <button class="install-btn" id="installBtn">📲 ติดตั้ง App</button>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
     <button class="tab active" data-tab="form">📝 Form</button>
     <button class="tab" data-tab="preview">👁️ Preview</button>
@@ -130,7 +126,7 @@
     <!-- ══ FORM ══ -->
     <div id="form" class="section active">
         <div class="draft-section">
-            <div class="draft-title">💾 Draft</div>
+            <div class="draft-title">💾 Draft Management</div>
             <div class="draft-buttons">
                 <button class="btn btn-green" id="saveDraftBtn">💾 Save</button>
                 <button class="btn btn-gray"  id="loadDraftBtn">📂 Load</button>
@@ -197,7 +193,7 @@
         </div>
 
         <div class="buttons">
-            <button class="btn btn-dark" id="clearBtn">🔄 Clear</button>
+            <button class="btn btn-red" id="clearBtn">🔄 Clear</button>
         </div>
     </div>
 
@@ -209,8 +205,8 @@
                 <p id="prev-subtitle"></p>
             </div>
             <div class="preview-actions">
-                <button class="btn btn-blue" id="printBtn"  style="padding:9px 12px;font-size:12px">🖨️ Print PDF</button>
-                <button class="btn btn-line" id="lineBtn"   style="padding:9px 12px;font-size:12px">💬 Share LINE</button>
+                <button class="btn btn-dark" id="printBtn" style="padding:9px 12px;font-size:12px">🖨️ Print PDF</button>
+                <button class="btn btn-line" id="lineBtn"  style="padding:9px 12px;font-size:12px">💬 Share LINE</button>
             </div>
         </div>
 
@@ -222,192 +218,116 @@
             <tr><td>Weather:</td><td id="prev-weather"></td></tr>
         </table>
 
-        <div class="form-section-header" style="margin-top:14px">REPCO PERSONNEL</div>
-        <table class="preview-table"><thead><tr style="background:#f3f4f6"><td style="font-weight:600">Position</td><td style="font-weight:600;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-p"></tbody></table>
+        <div class="form-section-header" style="margin-top:12px">REPCO PERSONNEL</div>
+        <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-p"></tbody></table>
 
-        <div class="form-section-header" style="margin-top:14px">STATE WORKERS</div>
-        <table class="preview-table"><thead><tr style="background:#f3f4f6"><td style="font-weight:600">Position</td><td style="font-weight:600;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-w"></tbody></table>
+        <div class="form-section-header" style="margin-top:12px">STATE WORKERS</div>
+        <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-w"></tbody></table>
 
-        <div class="form-section-header" style="margin-top:14px">EQUIPMENT IN USE</div>
-        <table class="preview-table"><thead><tr style="background:#f3f4f6"><td style="font-weight:600">Equipment</td></tr></thead><tbody id="prev-e"></tbody></table>
+        <div class="form-section-header" style="margin-top:12px">EQUIPMENT IN USE</div>
+        <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Equipment</td></tr></thead><tbody id="prev-e"></tbody></table>
 
-        <div class="form-section-header" style="margin-top:14px">DAILY WORK SUMMARY</div>
+        <div class="form-section-header" style="margin-top:12px">DAILY WORK SUMMARY</div>
         <div class="preview-card" id="prev-act"></div>
 
-        <div class="form-section-header" style="margin-top:14px">PROGRESS SUMMARY</div>
+        <div class="form-section-header" style="margin-top:12px">PROGRESS SUMMARY</div>
         <div class="preview-card" id="prev-prog"></div>
 
-        <div class="form-section-header" style="margin-top:14px">SITE PHOTOS</div>
+        <div class="form-section-header" style="margin-top:12px">SITE PHOTOS</div>
         <div class="prev-photos-grid" id="prev-photos"></div>
     </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   PWA — inject manifest + service worker
-═══════════════════════════════════════ */
-(function setupPWA() {
-    // Inline manifest via Blob
-    const manifest = {
-        name: 'Daily Construction Report',
-        short_name: 'Daily Report',
-        description: 'Daily construction site report for field staff',
-        start_url: location.href,
-        display: 'standalone',
-        orientation: 'portrait',
-        theme_color: '#1f2937',
-        background_color: '#f5f5f5',
-        icons: [
-            { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="24" fill="%231f2937"/><text y="130" x="30" font-size="120">🏗️</text></svg>', sizes: '192x192', type: 'image/svg+xml' },
-            { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="60" fill="%231f2937"/><text y="360" x="60" font-size="320">🏗️</text></svg>', sizes: '512x512', type: 'image/svg+xml' }
-        ]
-    };
-    const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-    document.getElementById('pwa-manifest').href = URL.createObjectURL(mBlob);
-
-    // Service Worker (inline via Blob)
-    if ('serviceWorker' in navigator) {
-        const swCode = `
-const CACHE = 'dcr-v1';
-const ASSETS = [location.href];
-self.addEventListener('install', e => {
-    e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-    self.skipWaiting();
-});
-self.addEventListener('activate', e => {
-    e.waitUntil(caches.keys().then(keys =>
-        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ));
-    self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-    e.respondWith(
-        caches.match(e.request).then(r => r || fetch(e.request).catch(() =>
-            caches.match(e.request)
-        ))
-    );
-});`;
-        const swBlob = new Blob([swCode], {type:'application/javascript'});
-        const swUrl  = URL.createObjectURL(swBlob);
-        navigator.serviceWorker.register(swUrl).catch(()=>{});
+/* ── PWA ── */
+(function(){
+    const m={name:'Daily Construction Report',short_name:'Daily Report',start_url:location.href,display:'standalone',orientation:'portrait',theme_color:'#1e3a8a',background_color:'#f0f4f8',icons:[{src:'https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png',sizes:'192x192',type:'image/png'}]};
+    document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
+    if('serviceWorker' in navigator){
+        const sw=`const C='dcr-v2';self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',()=>self.clients.claim());self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));`;
+        navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
     }
 })();
 
-/* ═══════════════════════════════════════
-   APP
-═══════════════════════════════════════ */
+const LOGO_URL = 'https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png';
+
 const APP = {
     photos:{}, pc:0, wc:0, ec:0,
     pKeys:['cm','pe','sv','qc'], wKeys:['m','w'],
-    deferredPrompt: null,
+    deferredPrompt:null,
 
-    init() {
-        // Tabs
-        document.querySelectorAll('.tab').forEach(t =>
-            t.addEventListener('click', () => this.switchTab(t.dataset.tab)));
+    init(){
+        document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>this.switchTab(t.dataset.tab)));
+        const on=(id,fn)=>document.getElementById(id).addEventListener('click',fn);
+        on('saveDraftBtn',()=>this.saveDraft());
+        on('loadDraftBtn',()=>this.loadDraft());
+        on('clearBtn',    ()=>this.clearForm());
+        on('addPBtn',     ()=>this.addRow('p'));
+        on('addWBtn',     ()=>this.addRow('w'));
+        on('addEBtn',     ()=>this.addRow('e'));
+        on('printBtn',    ()=>this.printReport());
+        on('lineBtn',     ()=>this.shareToLINE());
+        on('installBtn',  ()=>this.installPWA());
 
-        const on = (id,fn) => document.getElementById(id).addEventListener('click', fn);
-        on('saveDraftBtn', () => this.saveDraft());
-        on('loadDraftBtn', () => this.loadDraft());
-        on('clearBtn',     () => this.clearForm());
-        on('addPBtn',      () => this.addRow('p'));
-        on('addWBtn',      () => this.addRow('w'));
-        on('addEBtn',      () => this.addRow('e'));
-        on('printBtn',     () => this.printReport());
-        on('lineBtn',      () => this.shareToLINE());
-        on('installBtn',   () => this.installPWA());
+        const ph=document.getElementById('photoUpload');
+        for(let i=0;i<5;i++)
+            ph.innerHTML+=`<label class="photo-slot" id="slot-${i}">📷<input type="file" accept="image/*" onchange="APP.uploadPhoto(this,${i})"><button type="button" class="photo-del" onclick="APP.removePhoto(${i})">✕</button></label>`;
 
-        // Photo slots
-        const ph = document.getElementById('photoUpload');
-        for (let i=0;i<5;i++)
-            ph.innerHTML += `<label class="photo-slot" id="slot-${i}">📷
-                <input type="file" accept="image/*" onchange="APP.uploadPhoto(this,${i})">
-                <button type="button" class="photo-del" onclick="APP.removePhoto(${i})">✕</button>
-            </label>`;
-
-        // Live update
-        document.querySelectorAll('input,select,textarea').forEach(el =>
-            el.addEventListener('input', () => this.updatePreview()));
-
-        // PWA install prompt
-        window.addEventListener('beforeinstallprompt', e => {
-            e.preventDefault();
-            this.deferredPrompt = e;
-            document.getElementById('installBtn').classList.add('show');
-        });
-        window.addEventListener('appinstalled', () => {
-            document.getElementById('installBtn').classList.remove('show');
-            this.toast('✅ ติดตั้ง App สำเร็จ!');
-        });
-
+        document.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',()=>this.updatePreview()));
+        window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();this.deferredPrompt=e;document.getElementById('installBtn').classList.add('show');});
+        window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').classList.remove('show');this.toast('✅ ติดตั้ง App สำเร็จ!');});
         this.updatePreview();
     },
 
-    /* ── PWA Install ── */
-    async installPWA() {
-        if (!this.deferredPrompt) {
-            this.toast('💡 กด "Add to Home Screen" จากเมนูเบราว์เซอร์');
-            return;
-        }
+    async installPWA(){
+        if(!this.deferredPrompt){this.toast('💡 กด "Add to Home Screen" ในเมนูเบราว์เซอร์');return;}
         this.deferredPrompt.prompt();
-        const { outcome } = await this.deferredPrompt.userChoice;
-        this.deferredPrompt = null;
-        if (outcome === 'accepted') this.toast('✅ กำลังติดตั้ง...');
+        const{outcome}=await this.deferredPrompt.userChoice;
+        this.deferredPrompt=null;
+        if(outcome==='accepted') this.toast('✅ กำลังติดตั้ง...');
     },
 
-    /* ── Toast ── */
-    toast(msg, ms=2500) {
-        const el = document.getElementById('toast');
-        el.textContent = msg; el.classList.add('show');
-        setTimeout(() => el.classList.remove('show'), ms);
-    },
+    toast(msg,ms=2500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),ms);},
 
-    /* ── Tab ── */
-    switchTab(tab) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    switchTab(tab){
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
         document.getElementById(tab).classList.add('active');
         document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        if (tab==='preview') this.updatePreview();
+        if(tab==='preview') this.updatePreview();
     },
 
-    v(id) { return document.getElementById(id)?.value?.trim()||''; },
+    v(id){return document.getElementById(id)?.value?.trim()||'';},
 
-    /* ── Photo Upload + Compress ── */
-    uploadPhoto(input, idx) {
-        if (!input.files?.[0]) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX=800; let w=img.width, h=img.height;
-                if (w>MAX||h>MAX) { if(w>h){h=h*MAX/w;w=MAX;}else{w=w*MAX/h;h=MAX;} }
-                canvas.width=w; canvas.height=h;
-                canvas.getContext('2d').drawImage(img,0,0,w,h);
-                const comp = canvas.toDataURL('image/jpeg',.72);
+    uploadPhoto(input,idx){
+        if(!input.files?.[0]) return;
+        const reader=new FileReader();
+        reader.onload=e=>{
+            const img=new Image();
+            img.onload=()=>{
+                const c=document.createElement('canvas');
+                const M=800;let w=img.width,h=img.height;
+                if(w>M||h>M){if(w>h){h=h*M/w;w=M;}else{w=w*M/h;h=M;}}
+                c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+                const comp=c.toDataURL('image/jpeg',.72);
                 this.photos[idx]=comp;
-                document.getElementById(`slot-${idx}`).innerHTML =
-                    `<img src="${comp}"><button type="button" class="photo-del" style="display:flex" onclick="APP.removePhoto(${idx})">✕</button>`;
+                document.getElementById(`slot-${idx}`).innerHTML=`<img src="${comp}"><button type="button" class="photo-del" style="display:flex" onclick="APP.removePhoto(${idx})">✕</button>`;
                 this.updatePreview();
             };
-            img.src = e.target.result;
+            img.src=e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
     },
 
-    removePhoto(idx) {
+    removePhoto(idx){
         delete this.photos[idx];
-        document.getElementById(`slot-${idx}`).innerHTML =
-            `📷<input type="file" accept="image/*" onchange="APP.uploadPhoto(this,${idx})">
-            <button type="button" class="photo-del" onclick="APP.removePhoto(${idx})">✕</button>`;
+        document.getElementById(`slot-${idx}`).innerHTML=`📷<input type="file" accept="image/*" onchange="APP.uploadPhoto(this,${idx})"><button type="button" class="photo-del" onclick="APP.removePhoto(${idx})">✕</button>`;
         this.updatePreview();
     },
 
-    /* ── Dynamic Rows ── */
-    addRow(type) {
-        const count = type==='p'?++this.pc:type==='w'?++this.wc:++this.ec;
-        const id=`${type}${count}`, isE=type==='e';
+    addRow(type){
+        const count=type==='p'?++this.pc:type==='w'?++this.wc:++this.ec;
+        const id=`${type}${count}`,isE=type==='e';
         document.getElementById(`${type}c`).insertAdjacentHTML('beforeend',`
             <div class="form-row ${isE?'equipment':'personnel'}" id="row-${id}">
                 <div class="form-field"><input type="text" id="${id}-pos" placeholder="${isE?'Equipment':'Position'}" oninput="APP.updatePreview()"></div>
@@ -415,26 +335,17 @@ const APP = {
                 <button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button>
             </div>`);
     },
-    delRow(id) { document.getElementById(`row-${id}`)?.remove(); this.updatePreview(); },
+    delRow(id){document.getElementById(`row-${id}`)?.remove();this.updatePreview();},
 
-    /* ── Build Table Rows ── */
-    buildRows(keys,prefix,cid) {
-        let html='';
-        keys.forEach(k => {
-            const pos=this.v(`${prefix}-${k}-pos`), n=this.v(`${prefix}-${k}-n`);
-            if(pos) html+=`<tr><td>${pos}</td><td style="text-align:center">${n}</td></tr>`;
-        });
-        document.querySelectorAll(`#${cid} input[type="text"]`).forEach(el => {
-            if(!el.value) return;
-            const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';
-            html+=`<tr><td>${el.value}</td><td style="text-align:center">${n}</td></tr>`;
-        });
-        return html||'<tr><td colspan="2" style="color:#9ca3af">-</td></tr>';
+    buildRows(keys,prefix,cid){
+        let h='';
+        keys.forEach(k=>{const p=this.v(`${prefix}-${k}-pos`),n=this.v(`${prefix}-${k}-n`);if(p) h+=`<tr><td>${p}</td><td style="text-align:center">${n}</td></tr>`;});
+        document.querySelectorAll(`#${cid} input[type="text"]`).forEach(el=>{if(!el.value)return;const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';h+=`<tr><td>${el.value}</td><td style="text-align:center">${n}</td></tr>`;});
+        return h||'<tr><td colspan="2" style="color:#9ca3af">-</td></tr>';
     },
 
-    /* ── Update Preview ── */
-    updatePreview() {
-        const proj=this.v('projectName'), date=new Date(this.v('date'));
+    updatePreview(){
+        const proj=this.v('projectName'),date=new Date(this.v('date'));
         document.getElementById('prev-name').textContent=proj;
         document.getElementById('prev-subtitle').textContent=proj;
         document.getElementById('prev-date').textContent=date.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -442,142 +353,174 @@ const APP = {
         document.getElementById('prev-weather').textContent=this.v('weather')||'--';
         document.getElementById('prev-p').innerHTML=this.buildRows(this.pKeys,'p','pc');
         document.getElementById('prev-w').innerHTML=this.buildRows(this.wKeys,'w','wc');
-
-        let eHtml='';
-        if(this.v('eq1')) eHtml+=`<tr><td>${this.v('eq1')}</td></tr>`;
-        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{ if(el.value) eHtml+=`<tr><td>${el.value}</td></tr>`; });
-        document.getElementById('prev-e').innerHTML=eHtml||'<tr><td style="color:#9ca3af">-</td></tr>';
+        let eH='';
+        if(this.v('eq1')) eH+=`<tr><td>${this.v('eq1')}</td></tr>`;
+        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eH+=`<tr><td>${el.value}</td></tr>`;});
+        document.getElementById('prev-e').innerHTML=eH||'<tr><td style="color:#9ca3af">-</td></tr>';
         document.getElementById('prev-act').textContent=this.v('activities')||'-';
         document.getElementById('prev-prog').textContent=this.v('progress')||'-';
-
-        const grid=document.getElementById('prev-photos');
-        const keys=Object.keys(this.photos);
-        grid.innerHTML=keys.length
-            ? keys.map(k=>`<img src="${this.photos[k]}" class="prev-photo">`).join('')
-            : '<div style="grid-column:1/-1;color:#9ca3af;padding:16px;text-align:center">No photos</div>';
+        const grid=document.getElementById('prev-photos'),keys=Object.keys(this.photos);
+        grid.innerHTML=keys.length?keys.map(k=>`<img src="${this.photos[k]}" class="prev-photo">`).join(''):'<div style="grid-column:1/-1;color:#9ca3af;padding:16px;text-align:center">No photos</div>';
     },
 
-    /* ── Filename ── */
-    getFilename() {
+    getFilename(){
         const d=new Date(this.v('date'));
         return `Daily report ${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(-2)}`;
     },
 
-    /* ── Print PDF ── */
-    printReport() {
+    /* ══════════════════════════════════════
+       PRINT PDF — Official format + REPCO NEX branding
+    ══════════════════════════════════════ */
+    printReport(){
         this.updatePreview();
+
         let pRows='',wRows='',eRows='';
-        this.pKeys.forEach(k=>{ const pos=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`); if(pos) pRows+=`<tr><td>${pos}</td><td>${n}</td></tr>`; });
-        document.querySelectorAll('#pc .form-row').forEach(row=>{ const pos=row.querySelector('input[type="text"]')?.value,n=row.querySelector('input[type="number"]')?.value||'0'; if(pos) pRows+=`<tr><td>${pos}</td><td>${n}</td></tr>`; });
-        this.wKeys.forEach(k=>{ const pos=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`); if(pos) wRows+=`<tr><td>${pos}</td><td>${n}</td></tr>`; });
-        document.querySelectorAll('#wc .form-row').forEach(row=>{ const pos=row.querySelector('input[type="text"]')?.value,n=row.querySelector('input[type="number"]')?.value||'0'; if(pos) wRows+=`<tr><td>${pos}</td><td>${n}</td></tr>`; });
+        this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        document.querySelectorAll('#pc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        document.querySelectorAll('#wc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
         if(this.v('eq1')) eRows+=`<tr><td>${this.v('eq1')}</td></tr>`;
-        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{ if(el.value) eRows+=`<tr><td>${el.value}</td></tr>`; });
+        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eRows+=`<tr><td>${el.value}</td></tr>`;});
 
         const photoHtml=Object.values(this.photos).length
-            ? `<div class="pg">${Object.values(this.photos).map(p=>`<img src="${p}">`).join('')}</div>`
-            : '<p class="empty">No photos uploaded</p>';
+            ?`<div class="pg">${Object.values(this.photos).map(p=>`<img src="${p}">`).join('')}</div>`
+            :'<p class="empty">No photos uploaded</p>';
 
-        const proj=this.v('projectName'),rawDate=new Date(this.v('date')),filename=this.getFilename();
+        const proj=this.v('projectName'),rawDate=new Date(this.v('date')),fn=this.getFilename();
         const dateStr=rawDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+        const yr=new Date().getFullYear();
 
-        const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${filename}</title><style>
+        const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${fn}</title><style>
 @page{size:A4 portrait;margin:12mm 15mm 14mm 15mm}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:210mm;font-family:Arial,Helvetica,sans-serif;font-size:11pt;color:#111;background:#fff;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.rh{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:8px;margin-bottom:10px;border-bottom:3px solid #1f2937}
-.rt{font-size:16pt;font-weight:700;color:#1f2937;line-height:1.2}
-.rp{font-size:9pt;color:#555;margin-top:3px}
-.rb{background:#1f2937!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;padding:5px 12px;border-radius:4px;font-size:9pt;font-weight:700;text-align:center;line-height:1.5}
-.sec{margin-top:10px;margin-bottom:0;padding:5px 10px;font-size:9.5pt;font-weight:700;color:#fff;background:#1f2937!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:2px 2px 0 0}
+html,body{width:210mm;font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+
+/* HEADER */
+.rh{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:12px;border-bottom:3px solid #1e3a8a}
+.rh-logo{height:52px;object-fit:contain}
+.rh-right{text-align:right}
+.rh-title{font-size:14pt;font-weight:900;color:#1e3a8a;line-height:1.2}
+.rh-sub{font-size:8.5pt;color:#555;margin-top:3px}
+.badge{margin-top:5px;display:inline-block;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;padding:4px 10px;border-radius:4px;font-size:8pt;font-weight:700;line-height:1.6;text-align:left}
+
+/* SECTION BAR */
+.sec{margin-top:10px;margin-bottom:0;padding:5px 10px;font-size:9.5pt;font-weight:700;color:#fff!important;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:2px 2px 0 0;letter-spacing:.3px}
+
+/* TABLES */
 table{width:100%;border-collapse:collapse;font-size:10pt;page-break-inside:avoid}
-th,td{border:1px solid #999;padding:5px 8px;vertical-align:middle}
+th,td{border:1px solid #aaa;padding:5px 8px;vertical-align:middle}
 thead tr{background:#dce3ea!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 thead th{font-weight:700;font-size:9.5pt}
-.tl{font-weight:600;width:35%;background:#f0f0f0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.tc{text-align:center;width:22%;font-weight:600}
-tr:nth-child(even) td{background:#f8f8f8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.box{border:1px solid #999;border-top:none;padding:8px 10px;font-size:10pt;min-height:52px;white-space:pre-wrap;line-height:1.5;page-break-inside:avoid}
-.pg{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border:1px solid #999;border-top:none}
-.pg img{width:calc(50% - 4px);max-height:190mm;object-fit:contain;border:1px solid #ccc}
-.empty{border:1px solid #999;border-top:none;padding:12px;color:#aaa;font-size:9.5pt}
-.gt td:first-child{font-weight:700;width:32%;background:#f0f0f0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.footer{margin-top:14px;padding-top:6px;border-top:1px solid #bbb;display:flex;justify-content:space-between;font-size:8pt;color:#777}
+.tl{font-weight:700;width:32%;background:#e8eef8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.tc{text-align:center;width:20%;font-weight:700}
+tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.gt td:first-child{font-weight:700;width:32%;background:#e8eef8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+
+/* TEXT BOX */
+.box{border:1px solid #aaa;border-top:none;padding:8px 10px;font-size:10pt;min-height:52px;white-space:pre-wrap;line-height:1.5;page-break-inside:avoid;background:#fafbff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+
+/* PHOTOS */
+.pg{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border:1px solid #aaa;border-top:none}
+.pg img{width:calc(50% - 4px);max-height:180mm;object-fit:contain;border:1px solid #ccc}
+.empty{border:1px solid #aaa;border-top:none;padding:12px;color:#aaa;font-size:9pt}
+
+/* FOOTER */
+.footer{margin-top:14px;padding-top:7px;border-top:2px solid #1e3a8a;display:flex;justify-content:space-between;align-items:center;font-size:8pt;color:#555}
+.copy{font-weight:700;color:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.copy-red{color:#dc2626!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 </style></head><body>
-<div class="rh"><div><div class="rt">Daily Construction Site Report</div><div class="rp">${proj}</div></div>
-<div class="rb">Date: ${rawDate.toLocaleDateString('en-GB')}<br>Weather: ${this.v('weather')||'-'}</div></div>
+
+<!-- HEADER -->
+<div class="rh">
+    <img class="rh-logo" src="${LOGO_URL}" alt="REPCO NEX Industrial Solutions"
+         onerror="this.style.display='none'">
+    <div class="rh-right">
+        <div class="rh-title">Daily Construction Site Report</div>
+        <div class="rh-sub">${proj}</div>
+        <div class="badge">📅 ${rawDate.toLocaleDateString('en-GB')}&nbsp;&nbsp;🌤️ ${this.v('weather')||'-'}<br>📍 ${this.v('location')||'-'}</div>
+    </div>
+</div>
+
+<!-- GENERAL INFO -->
 <div class="sec">GENERAL INFORMATION</div>
-<table class="gt"><tr><td>Project Name</td><td>${proj}</td></tr><tr><td>Date</td><td>${dateStr}</td></tr><tr><td>Location</td><td>${this.v('location')||'-'}</td></tr><tr><td>Weather</td><td>${this.v('weather')||'-'}</td></tr></table>
+<table class="gt">
+    <tr><td>Project Name</td><td>${proj}</td></tr>
+    <tr><td>Date</td><td>${dateStr}</td></tr>
+    <tr><td>Location</td><td>${this.v('location')||'-'}</td></tr>
+    <tr><td>Weather Conditions</td><td>${this.v('weather')||'-'}</td></tr>
+</table>
+
+<!-- REPCO PERSONNEL -->
 <div class="sec">REPCO PERSONNEL</div>
-<table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead><tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
+<table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
+<tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
+
+<!-- STATE WORKERS -->
 <div class="sec">STATE WORKERS</div>
-<table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead><tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
+<table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
+<tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
+
+<!-- EQUIPMENT -->
 <div class="sec">EQUIPMENT IN USE</div>
-<table><thead><tr><th>Equipment / Machinery</th></tr></thead><tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table>
-<div class="sec">DAILY WORK SUMMARY</div><div class="box">${this.v('activities')||'-'}</div>
-<div class="sec">PROGRESS SUMMARY</div><div class="box">${this.v('progress')||'-'}</div>
-<div class="sec">SITE PHOTOS</div>${photoHtml}
-<div class="footer"><span>${proj}</span><span>Generated: ${new Date().toLocaleString('en-GB')}</span></div>
-<script>window.addEventListener('load',function(){document.title='${filename}';setTimeout(function(){window.print();},500);});<\/script>
+<table><thead><tr><th>Equipment / Machinery</th></tr></thead>
+<tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table>
+
+<!-- DAILY WORK SUMMARY -->
+<div class="sec">DAILY WORK SUMMARY</div>
+<div class="box">${this.v('activities')||'-'}</div>
+
+<!-- PROGRESS SUMMARY -->
+<div class="sec">PROGRESS SUMMARY</div>
+<div class="box">${this.v('progress')||'-'}</div>
+
+<!-- SITE PHOTOS -->
+<div class="sec">SITE PHOTOS</div>
+${photoHtml}
+
+<!-- FOOTER + COPYRIGHT -->
+<div class="footer">
+    <div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div>
+    <div style="text-align:right"><div>${fn}</div><div>Generated: ${new Date().toLocaleString('en-GB')}</div></div>
+</div>
+
+<script>
+window.addEventListener('load',function(){
+    document.title='${fn}';
+    setTimeout(function(){window.print();},500);
+});
+<\/script>
 </body></html>`;
 
         const blob=new Blob([html],{type:'text/html;charset=utf-8'});
         const a=document.createElement('a');
-        a.href=URL.createObjectURL(blob); a.target='_blank';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        a.href=URL.createObjectURL(blob);a.target='_blank';
+        document.body.appendChild(a);a.click();document.body.removeChild(a);
         setTimeout(()=>URL.revokeObjectURL(a.href),20000);
     },
 
     /* ══════════════════════════════════════
-       SHARE TO LINE
-       วิธีการ:
-       1. สร้างข้อความสรุป Report
-       2. เปิด LINE Share URL พร้อมข้อความ
-       3. ผู้ใช้เลือก Chat ใน LINE แล้วส่ง
+       SHARE LINE — ไม่มี Copyright
     ══════════════════════════════════════ */
-    shareToLINE() {
+    shareToLINE(){
         this.updatePreview();
-        const proj    = this.v('projectName');
-        const date    = new Date(this.v('date'));
-        const dateStr = date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-        const loc     = this.v('location')||'-';
-        const weather = this.v('weather')||'-';
-        const acts    = this.v('activities')||'-';
-        const prog    = this.v('progress')||'-';
-        const filename= this.getFilename();
-
-        // สรุป Personnel
+        const proj=this.v('projectName'),date=new Date(this.v('date'));
+        const dateStr=date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
         let pSum='';
-        this.pKeys.forEach(k=>{
-            const pos=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);
-            if(pos) pSum+=`  • ${pos}: ${n} คน\n`;
-        });
-        document.querySelectorAll('#pc input[type="text"]').forEach(el=>{
-            if(!el.value) return;
-            const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';
-            pSum+=`  • ${el.value}: ${n} คน\n`;
-        });
-
-        // สรุป Workers
+        this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pSum+=`  • ${p}: ${n} คน\n`;});
+        document.querySelectorAll('#pc input[type="text"]').forEach(el=>{if(!el.value)return;const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';pSum+=`  • ${el.value}: ${n} คน\n`;});
         let wSum='';
-        this.wKeys.forEach(k=>{
-            const pos=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);
-            if(pos) wSum+=`  • ${pos}: ${n} คน\n`;
-        });
-
-        // สรุป Equipment
+        this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wSum+=`  • ${p}: ${n} คน\n`;});
         let eSum='';
         if(this.v('eq1')) eSum+=`  • ${this.v('eq1')}\n`;
-        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{ if(el.value) eSum+=`  • ${el.value}\n`; });
+        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eSum+=`  • ${el.value}\n`;});
 
-        // สร้างข้อความ
-        const msg =
-`📋 ${filename}
+        const msg=
+`📋 ${this.getFilename()}
 ${'─'.repeat(30)}
 🏗️ ${proj}
-📅 Date: ${dateStr}
-📍 Location: ${loc}
-🌤️ Weather: ${weather}
+📅 ${dateStr}
+📍 ${this.v('location')||'-'}
+🌤️ ${this.v('weather')||'-'}
 
 👨‍💼 REPCO PERSONNEL
 ${pSum||'  -\n'}
@@ -586,84 +529,67 @@ ${wSum||'  -\n'}
 🚜 EQUIPMENT
 ${eSum||'  -\n'}
 🎯 DAILY ACTIVITY
-${acts}
+${this.v('activities')||'-'}
 
 📊 PROGRESS
-${prog}
+${this.v('progress')||'-'}
 
-⏰ Generated: ${new Date().toLocaleString('th-TH')}`;
+⏰ ${new Date().toLocaleString('th-TH')}`;
 
-        const encoded = encodeURIComponent(msg);
-
-        // LINE Share URL — เปิด LINE app โดยตรง
-        const lineUrl = `https://line.me/R/msg/text/?${encoded}`;
-
-        // Fallback: Web Share API (Android native share sheet)
-        if (navigator.share) {
-            navigator.share({
-                title: filename,
-                text: msg,
-            }).then(()=>{
-                this.toast('✅ ส่งสำเร็จ!');
-            }).catch(()=>{
-                // ถ้า cancel ให้ fallback ไป LINE URL
-                window.open(lineUrl,'_blank');
-            });
+        const lineUrl=`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
+        if(navigator.share){
+            navigator.share({title:this.getFilename(),text:msg}).catch(()=>window.open(lineUrl,'_blank'));
         } else {
-            // เปิด LINE โดยตรง
             window.open(lineUrl,'_blank');
             this.toast('💬 เปิด LINE เพื่อส่งรายงาน...');
         }
     },
 
-    /* ── Save Draft ── */
-    saveDraft() {
-        const data={g:{},p:{},w:{},e:[]};
-        ['date','location','projectName','weather','activities','progress'].forEach(f=>data.g[f]=this.v(f));
-        this.pKeys.forEach(k=>data.p[k]={pos:this.v(`p-${k}-pos`),n:this.v(`p-${k}-n`)});
-        this.wKeys.forEach(k=>data.w[k]={pos:this.v(`w-${k}-pos`),n:this.v(`w-${k}-n`)});
-        document.querySelectorAll('#pc .form-row').forEach((row,i)=>{ const pos=row.querySelector('input[type="text"]')?.value,n=row.querySelector('input[type="number"]')?.value||'0'; if(pos) data.p[`x${i}`]={pos,n}; });
-        document.querySelectorAll('#wc .form-row').forEach((row,i)=>{ const pos=row.querySelector('input[type="text"]')?.value,n=row.querySelector('input[type="number"]')?.value||'0'; if(pos) data.w[`x${i}`]={pos,n}; });
-        const e1=this.v('eq1'); if(e1) data.e.push(e1);
-        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{ if(el.value) data.e.push(el.value); });
-        localStorage.setItem('dcr_draft',JSON.stringify(data));
+    saveDraft(){
+        const d={g:{},p:{},w:{},e:[]};
+        ['date','location','projectName','weather','activities','progress'].forEach(f=>d.g[f]=this.v(f));
+        this.pKeys.forEach(k=>d.p[k]={pos:this.v(`p-${k}-pos`),n:this.v(`p-${k}-n`)});
+        this.wKeys.forEach(k=>d.w[k]={pos:this.v(`w-${k}-pos`),n:this.v(`w-${k}-n`)});
+        document.querySelectorAll('#pc .form-row').forEach((r,i)=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) d.p[`x${i}`]={pos:p,n};});
+        document.querySelectorAll('#wc .form-row').forEach((r,i)=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) d.w[`x${i}`]={pos:p,n};});
+        const e1=this.v('eq1');if(e1) d.e.push(e1);
+        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) d.e.push(el.value);});
+        localStorage.setItem('dcr_draft',JSON.stringify(d));
         this.toast('✅ Draft saved!');
     },
 
-    /* ── Load Draft ── */
-    loadDraft() {
-        const data=JSON.parse(localStorage.getItem('dcr_draft'));
-        if(!data) return this.toast('❌ No draft found!');
-        Object.entries(data.g||{}).forEach(([k,v])=>{ const el=document.getElementById(k); if(el) el.value=v; });
+    loadDraft(){
+        const d=JSON.parse(localStorage.getItem('dcr_draft'));
+        if(!d) return this.toast('❌ No draft found!');
+        Object.entries(d.g||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el) el.value=v;});
         const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
-        this.pKeys.forEach(k=>{ document.getElementById(`p-${k}-pos`).value=data.p?.[k]?.pos||pd[k]; document.getElementById(`p-${k}-n`).value=data.p?.[k]?.n||'1'; });
+        this.pKeys.forEach(k=>{document.getElementById(`p-${k}-pos`).value=d.p?.[k]?.pos||pd[k];document.getElementById(`p-${k}-n`).value=d.p?.[k]?.n||'1';});
         const wd={m:'Worker (M)',w:'Worker (W)'};
-        this.wKeys.forEach(k=>{ document.getElementById(`w-${k}-pos`).value=data.w?.[k]?.pos||wd[k]; document.getElementById(`w-${k}-n`).value=data.w?.[k]?.n||'1'; });
+        this.wKeys.forEach(k=>{document.getElementById(`w-${k}-pos`).value=d.w?.[k]?.pos||wd[k];document.getElementById(`w-${k}-n`).value=d.w?.[k]?.n||'1';});
         ['pc','wc','ec'].forEach(id=>document.getElementById(id).innerHTML='');
-        Object.entries(data.p||{}).filter(([k])=>k.startsWith('x')).forEach(([,v])=>{ this.pc++; const id=`p${this.pc}`; document.getElementById('pc').insertAdjacentHTML('beforeend',`<div class="form-row personnel" id="row-${id}"><div class="form-field"><input type="text" id="${id}-pos" value="${v.pos}" oninput="APP.updatePreview()"></div><div class="form-field"><input type="number" min="0" id="${id}-n" value="${v.n}" oninput="APP.updatePreview()"></div><button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button></div>`); });
-        Object.entries(data.w||{}).filter(([k])=>k.startsWith('x')).forEach(([,v])=>{ this.wc++; const id=`w${this.wc}`; document.getElementById('wc').insertAdjacentHTML('beforeend',`<div class="form-row personnel" id="row-${id}"><div class="form-field"><input type="text" id="${id}-pos" value="${v.pos}" oninput="APP.updatePreview()"></div><div class="form-field"><input type="number" min="0" id="${id}-n" value="${v.n}" oninput="APP.updatePreview()"></div><button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button></div>`); });
-        (data.e||[]).forEach((e,i)=>{ if(i===0){document.getElementById('eq1').value=e;return;} this.ec++; const id=`e${this.ec}`; document.getElementById('ec').insertAdjacentHTML('beforeend',`<div class="form-row equipment" id="row-${id}"><div class="form-field"><input type="text" id="${id}-pos" value="${e}" oninput="APP.updatePreview()"></div><button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button></div>`); });
-        this.toast('✅ Draft loaded!'); this.updatePreview();
+        Object.entries(d.p||{}).filter(([k])=>k.startsWith('x')).forEach(([,v])=>{this.pc++;const id=`p${this.pc}`;document.getElementById('pc').insertAdjacentHTML('beforeend',`<div class="form-row personnel" id="row-${id}"><div class="form-field"><input type="text" id="${id}-pos" value="${v.pos}" oninput="APP.updatePreview()"></div><div class="form-field"><input type="number" min="0" id="${id}-n" value="${v.n}" oninput="APP.updatePreview()"></div><button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button></div>`);});
+        Object.entries(d.w||{}).filter(([k])=>k.startsWith('x')).forEach(([,v])=>{this.wc++;const id=`w${this.wc}`;document.getElementById('wc').insertAdjacentHTML('beforeend',`<div class="form-row personnel" id="row-${id}"><div class="form-field"><input type="text" id="${id}-pos" value="${v.pos}" oninput="APP.updatePreview()"></div><div class="form-field"><input type="number" min="0" id="${id}-n" value="${v.n}" oninput="APP.updatePreview()"></div><button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button></div>`);});
+        (d.e||[]).forEach((e,i)=>{if(i===0){document.getElementById('eq1').value=e;return;}this.ec++;const id=`e${this.ec}`;document.getElementById('ec').insertAdjacentHTML('beforeend',`<div class="form-row equipment" id="row-${id}"><div class="form-field"><input type="text" id="${id}-pos" value="${e}" oninput="APP.updatePreview()"></div><button type="button" class="delete-btn" onclick="APP.delRow('${id}')">❌</button></div>`);});
+        this.toast('✅ Draft loaded!');this.updatePreview();
     },
 
-    /* ── Clear Form ── */
-    clearForm() {
+    clearForm(){
         if(!confirm('Clear all data?')) return;
         document.querySelectorAll('input[type="text"],input[type="number"],select,textarea').forEach(el=>el.value='');
         document.getElementById('date').value='2026-05-22';
         document.getElementById('projectName').value='Suwannaphum Rice Co., Ltd. - RISE Project';
         const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
-        this.pKeys.forEach(k=>{ document.getElementById(`p-${k}-pos`).value=pd[k]; document.getElementById(`p-${k}-n`).value='1'; });
-        this.wKeys.forEach(k=>{ document.getElementById(`w-${k}-pos`).value=k==='m'?'Worker (M)':'Worker (W)'; document.getElementById(`w-${k}-n`).value='1'; });
+        this.pKeys.forEach(k=>{document.getElementById(`p-${k}-pos`).value=pd[k];document.getElementById(`p-${k}-n`).value='1';});
+        this.wKeys.forEach(k=>{document.getElementById(`w-${k}-pos`).value=k==='m'?'Worker (M)':'Worker (W)';document.getElementById(`w-${k}-n`).value='1';});
         ['pc','wc','ec'].forEach(id=>document.getElementById(id).innerHTML='');
-        this.photos={}; this.pc=this.wc=this.ec=0;
+        this.photos={};this.pc=this.wc=this.ec=0;
         this.updatePreview();
     }
 };
 
 document.readyState==='loading'
-    ? document.addEventListener('DOMContentLoaded',()=>APP.init())
-    : APP.init();
+    ?document.addEventListener('DOMContentLoaded',()=>APP.init())
+    :APP.init();
 </script>
 
 							<script>
