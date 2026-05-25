@@ -31,9 +31,60 @@
     .header-fallback { display:none; align-items:center; gap:6px; font-size:15px; font-weight:800; color:white; }
     .install-btn { background:rgba(255,255,255,.18); color:white; border:1px solid rgba(255,255,255,.35); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; display:none; }
     .install-btn.show { display:block; }
-    .tabs { display:flex; background:white; border-bottom:2px solid #e5e7eb; padding:0 16px; }
-    .tab { padding:11px 20px; border:none; background:none; cursor:pointer; font-size:14px; color:#6b7280; border-bottom:3px solid transparent; transition:all .25s; font-weight:500; }
+
+    /* ── TABS ── */
+    .tabs {
+        display: flex;
+        background: white;
+        border-bottom: 2px solid #e5e7eb;
+        padding: 0;
+    }
+    .tab {
+        flex: 1;
+        padding: 11px 8px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 13px;
+        color: #6b7280;
+        border-bottom: 3px solid transparent;
+        transition: all .25s;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+    }
     .tab.active { color:#1e3a8a; border-bottom-color:#1e3a8a; font-weight:700; }
+    .tab:hover { color:#1e3a8a; background:#f8faff; }
+
+    /* ── SharePoint Tab — สีเขียว ── */
+    .tab-sp {
+        flex: 1;
+        padding: 11px 8px;
+        border: none;
+        border-bottom: 3px solid transparent;
+        background: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f7b0f;
+        text-align: center;
+        white-space: nowrap;
+        transition: all .25s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+    .tab-sp:hover {
+        background: #f0fff0;
+        border-bottom-color: #0f7b0f;
+        color: #0a5e0a;
+    }
+    .tab-sp:active {
+        background: #dcfce7;
+    }
+
     .container { display:flex; height:calc(100vh - 108px); padding:14px; overflow:hidden; }
     .section { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.1); display:none; flex:1; overflow-y:auto; padding:18px; }
     .section.active { display:block; }
@@ -64,102 +115,21 @@
     .draft-buttons { display:flex; gap:10px; }
     .draft-buttons .btn { padding:9px; font-size:12px; }
 
-    /* ══ PHOTO SECTION ══ */
+    /* ── PHOTO ── */
+    .photo-add-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:#1e3a8a; color:white; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; transition:background .2s; position:relative; overflow:hidden; }
+    .photo-add-btn:active { background:#1e40af; }
+    .photo-add-btn input[type="file"] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+    .photo-add-btn .btn-icon { font-size:20px; }
+    .photo-add-sub { font-size:11px; font-weight:400; opacity:.85; }
+    .photo-counter { display:flex; align-items:center; justify-content:space-between; margin-top:10px; margin-bottom:6px; padding:0 2px; }
+    .photo-counter-label { font-size:13px; font-weight:600; color:#374151; }
+    .photo-counter-badge { background:#1e3a8a; color:white; border-radius:12px; padding:2px 10px; font-size:12px; font-weight:700; }
+    .photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; margin-top:4px; }
+    .photo-item { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.18); background:#e5e7eb; }
+    .photo-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .photo-item-del { position:absolute; top:4px; right:4px; background:rgba(220,38,38,.88); color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .photo-item-num { position:absolute; bottom:3px; left:4px; background:rgba(30,58,138,.75); color:white; border-radius:3px; padding:1px 5px; font-size:10px; font-weight:700; }
 
-    /* ปุ่มเพิ่มรูป — ไม่มี border ค้าง */
-    .photo-add-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        width: 100%;
-        padding: 14px;
-        background: #1e3a8a;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background .2s;
-        position: relative;
-        overflow: hidden;
-    }
-    .photo-add-btn:active { background: #1e40af; }
-    /* input ซ่อนอยู่บน button */
-    .photo-add-btn input[type="file"] {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-    }
-    .photo-add-btn .btn-icon { font-size: 20px; }
-    .photo-add-sub { font-size: 11px; font-weight: 400; opacity: .85; }
-
-    /* badge จำนวนรูป */
-    .photo-counter {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 10px;
-        margin-bottom: 6px;
-        padding: 0 2px;
-    }
-    .photo-counter-label { font-size: 13px; font-weight: 600; color: #374151; }
-    .photo-counter-badge {
-        background: #1e3a8a;
-        color: white;
-        border-radius: 12px;
-        padding: 2px 10px;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    /* grid รูป */
-    .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 8px;
-        margin-top: 4px;
-    }
-    .photo-item {
-        position: relative;
-        aspect-ratio: 1;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 4px rgba(0,0,0,.18);
-        background: #e5e7eb;
-    }
-    .photo-item img {
-        width: 100%; height: 100%;
-        object-fit: cover; display: block;
-    }
-    .photo-item-del {
-        position: absolute;
-        top: 4px; right: 4px;
-        background: rgba(220,38,38,.88);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 22px; height: 22px;
-        font-size: 13px; font-weight: 700;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        line-height: 1;
-    }
-    .photo-item-num {
-        position: absolute;
-        bottom: 3px; left: 4px;
-        background: rgba(30,58,138,.75);
-        color: white;
-        border-radius: 3px;
-        padding: 1px 5px;
-        font-size: 10px; font-weight: 700;
-    }
-
-    /* preview */
     .preview-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; padding-bottom:14px; border-bottom:2.5px solid #1e3a8a; gap:10px; }
     .preview-top h2 { font-size:17px; font-weight:800; color:#1e3a8a; }
     .preview-top p { font-size:11px; color:#6b7280; margin-top:3px; }
@@ -192,12 +162,24 @@
     <button class="install-btn" id="installBtn">📲 ติดตั้ง App</button>
 </div>
 
+<!-- ── TABS + SharePoint button ── -->
 <div class="tabs">
     <button class="tab active" data-tab="form">📝 Form</button>
     <button class="tab" data-tab="preview">👁️ Preview</button>
+    <a  class="tab-sp"
+        href="https://scgo365.sharepoint.com/:f:/r/sites/INTERNAL_B-26-6530_RISEProject/INTERNAL%20PC%20Package/07.PM/01.IMS/12.Daily%20Meeting?csf=1&web=1&e=Py8trl"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="เปิด SharePoint Folder">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.003 2C6.477 2 2 6.477 2 12.003S6.477 22 12.003 22c5.525 0 9.997-4.477 9.997-9.997S17.528 2 12.003 2zm4.496 14.995H7.5v-1.5h9v1.5zm0-3H7.5v-1.5h9v1.5zm-3-3H7.5v-1.5h6v1.5z"/>
+        </svg>
+        📁 Upload
+    </a>
 </div>
 
 <div class="container">
+    <!-- FORM -->
     <div id="form" class="section active">
         <div class="draft-section">
             <div class="draft-title">💾 Draft Management</div>
@@ -262,8 +244,6 @@
 
         <div class="form-group">
             <div class="form-section-header">📸 SITE PHOTOS</div>
-
-            <!-- ปุ่มเพิ่มรูป — ไม่มี border ค้าง -->
             <button type="button" class="photo-add-btn" id="photoAddBtn">
                 <input type="file" accept="image/*" multiple id="photoInput">
                 <span class="btn-icon">📷</span>
@@ -272,8 +252,6 @@
                     <div class="photo-add-sub">เลือกหลายรูปพร้อมกันได้ • ไม่จำกัดจำนวน</div>
                 </span>
             </button>
-
-            <!-- counter + grid -->
             <div class="photo-counter" id="photoCounter" style="display:none">
                 <span class="photo-counter-label">📷 รูปที่แนบ</span>
                 <span class="photo-counter-badge" id="photoBadge">0 รูป</span>
@@ -306,29 +284,24 @@
             <tr><td>Location:</td><td id="prev-loc"></td></tr>
             <tr><td>Weather:</td><td id="prev-weather"></td></tr>
         </table>
-
         <div class="form-section-header" style="margin-top:12px">REPCO PERSONNEL</div>
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-p"></tbody></table>
-
         <div class="form-section-header" style="margin-top:12px">STATE PERSONNEL</div>
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-w"></tbody></table>
-
         <div class="form-section-header" style="margin-top:12px">EQUIPMENT IN USE</div>
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Equipment</td></tr></thead><tbody id="prev-e"></tbody></table>
-
         <div class="form-section-header" style="margin-top:12px">DAILY WORK SUMMARY</div>
         <div class="preview-card" id="prev-act"></div>
-
         <div class="form-section-header" style="margin-top:12px">PROGRESS SUMMARY</div>
         <div class="preview-card" id="prev-prog"></div>
-
         <div class="form-section-header" style="margin-top:12px">SITE PHOTOS</div>
         <div class="prev-photos-grid" id="prev-photos"></div>
     </div>
 </div>
 
 <script>
-const LOGO_URL = 'https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png';
+const LOGO_URL='https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png';
+const SP_URL='https://scgo365.sharepoint.com/:f:/r/sites/INTERNAL_B-26-6530_RISEProject/INTERNAL%20PC%20Package/07.PM/01.IMS/12.Daily%20Meeting?csf=1&web=1&e=Py8trl';
 
 (function(){
     const m={name:'Daily Construction Report',short_name:'Daily Report',start_url:location.href,display:'standalone',orientation:'portrait',theme_color:'#1e3a8a',background_color:'#f0f4f8',icons:[{src:LOGO_URL,sizes:'192x192',type:'image/png'}]};
@@ -339,9 +312,9 @@ const LOGO_URL = 'https://raw.githubusercontent.com/panupongeng-debug/Daily-Repo
     }
 })();
 
-const APP = {
-    photos:[], pc:0, wc:0, ec:0,
-    pKeys:['cm','pe','sv','qc'], wKeys:['m','w'],
+const APP={
+    photos:[],pc:0,wc:0,ec:0,
+    pKeys:['cm','pe','sv','qc'],wKeys:['m','w'],
     deferredPrompt:null,
 
     init(){
@@ -357,11 +330,7 @@ const APP = {
         on('lineBtn',     ()=>this.shareToLINE());
         on('installBtn',  ()=>this.installPWA());
 
-        document.getElementById('photoInput').addEventListener('change', e=>{
-            this.handleFiles(e.target.files);
-            e.target.value='';
-        });
-
+        document.getElementById('photoInput').addEventListener('change',e=>{this.handleFiles(e.target.files);e.target.value='';});
         document.querySelectorAll('input:not(#photoInput),select,textarea').forEach(el=>el.addEventListener('input',()=>this.updatePreview()));
         window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();this.deferredPrompt=e;document.getElementById('installBtn').classList.add('show');});
         window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').classList.remove('show');this.toast('✅ ติดตั้ง App สำเร็จ!');});
@@ -370,8 +339,7 @@ const APP = {
 
     handleFiles(files){
         if(!files?.length) return;
-        const total=files.length;
-        let done=0;
+        const total=files.length;let done=0;
         this.toast(`📷 กำลังประมวลผล ${total} รูป...`,3000);
         Array.from(files).forEach(file=>{
             if(!file.type.startsWith('image/')) return;
@@ -384,9 +352,7 @@ const APP = {
                     if(w>M||h>M){if(w>h){h=h*M/w;w=M;}else{w=w*M/h;h=M;}}
                     c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
                     this.photos.push(c.toDataURL('image/jpeg',.78));
-                    done++;
-                    this.renderPhotoGrid();
-                    this.updatePreview();
+                    done++;this.renderPhotoGrid();this.updatePreview();
                     if(done===total) this.toast(`✅ เพิ่ม ${total} รูป (รวม ${this.photos.length} รูป)`);
                 };
                 img.src=e.target.result;
@@ -398,28 +364,17 @@ const APP = {
     renderPhotoGrid(){
         const grid=document.getElementById('photoGrid');
         const counter=document.getElementById('photoCounter');
-        const badge=document.getElementById('photoBadge');
-
-        /* แสดง/ซ่อน counter */
-        counter.style.display = this.photos.length ? 'flex' : 'none';
-        badge.textContent = `${this.photos.length} รูป`;
-
-        /* render รูป — ไม่มี border ค้าง */
-        grid.innerHTML = this.photos.map((src,i)=>`
+        document.getElementById('photoBadge').textContent=`${this.photos.length} รูป`;
+        counter.style.display=this.photos.length?'flex':'none';
+        grid.innerHTML=this.photos.map((src,i)=>`
             <div class="photo-item">
                 <img src="${src}" alt="Photo ${i+1}">
                 <button type="button" class="photo-item-del" onclick="APP.removePhoto(${i})">✕</button>
                 <span class="photo-item-num">${i+1}</span>
-            </div>
-        `).join('');
+            </div>`).join('');
     },
 
-    removePhoto(idx){
-        this.photos.splice(idx,1);
-        this.renderPhotoGrid();
-        this.updatePreview();
-        this.toast(`🗑️ ลบรูปที่ ${idx+1} แล้ว`);
-    },
+    removePhoto(idx){this.photos.splice(idx,1);this.renderPhotoGrid();this.updatePreview();this.toast(`🗑️ ลบรูปที่ ${idx+1} แล้ว`);},
 
     async installPWA(){
         if(!this.deferredPrompt){this.toast('💡 กด "Add to Home Screen" ในเมนูเบราว์เซอร์');return;}
@@ -476,9 +431,7 @@ const APP = {
         document.getElementById('prev-act').textContent=this.v('activities')||'-';
         document.getElementById('prev-prog').textContent=this.v('progress')||'-';
         const grid=document.getElementById('prev-photos');
-        grid.innerHTML=this.photos.length
-            ?this.photos.map(s=>`<img src="${s}" class="prev-photo">`).join('')
-            :'<div style="grid-column:1/-1;color:#9ca3af;padding:16px;text-align:center">No photos</div>';
+        grid.innerHTML=this.photos.length?this.photos.map(s=>`<img src="${s}" class="prev-photo">`).join(''):'<div style="grid-column:1/-1;color:#9ca3af;padding:16px;text-align:center">No photos</div>';
     },
 
     getFilename(){
@@ -556,12 +509,9 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
 <div class="sec">EQUIPMENT IN USE</div>
 <table><thead><tr><th>Equipment / Machinery</th></tr></thead>
 <tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table>
-<div class="sec">DAILY WORK SUMMARY</div>
-<div class="box">${this.v('activities')||'-'}</div>
-<div class="sec">PROGRESS SUMMARY</div>
-<div class="box">${this.v('progress')||'-'}</div>
-<div class="sec">SITE PHOTOS (${this.photos.length} รูป)</div>
-${photoHtml}
+<div class="sec">DAILY WORK SUMMARY</div><div class="box">${this.v('activities')||'-'}</div>
+<div class="sec">PROGRESS SUMMARY</div><div class="box">${this.v('progress')||'-'}</div>
+<div class="sec">SITE PHOTOS (${this.photos.length} รูป)</div>${photoHtml}
 <div class="footer">
     <div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div>
     <div style="text-align:right"><div>${fn}</div><div>Generated: ${new Date().toLocaleString('en-GB')}</div></div>
@@ -586,9 +536,7 @@ ${photoHtml}
         this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wSum+=`  • ${p}: ${n} คน\n`;});
         if(this.v('eq1')) eSum+=`  • ${this.v('eq1')}\n`;
         document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eSum+=`  • ${el.value}\n`;});
-
         const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${pSum||'  -\n'}\n👥 STATE PERSONNEL\n${wSum||'  -\n'}\n🚜 EQUIPMENT\n${eSum||'  -\n'}\n🎯 ACTIVITY\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
-
         const lineUrl=`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         if(navigator.share){
             navigator.share({title:this.getFilename(),text:msg}).catch(()=>window.open(lineUrl,'_blank'));
@@ -636,8 +584,7 @@ ${photoHtml}
         this.wKeys.forEach(k=>{document.getElementById(`w-${k}-pos`).value=k==='m'?'Worker (M)':'Worker (W)';document.getElementById(`w-${k}-n`).value='1';});
         ['pc','wc','ec'].forEach(id=>document.getElementById(id).innerHTML='');
         this.photos=[];this.pc=this.wc=this.ec=0;
-        this.renderPhotoGrid();
-        this.updatePreview();
+        this.renderPhotoGrid();this.updatePreview();
     }
 };
 
