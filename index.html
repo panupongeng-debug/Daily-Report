@@ -138,12 +138,13 @@
             </div></div>
         </div>
 
+        <!-- ✅ REPCO PERSONNEL — เหลือแค่ Construction Manager 1 คน -->
         <div class="form-group">
             <div class="form-section-header">👨‍💼 REPCO PERSONNEL</div>
-            <div class="form-row personnel"><div class="form-field"><input type="text" id="p-cm-pos" value="Construction Manager"></div><div class="form-field"><input type="number" min="0" id="p-cm-n" value="1"></div></div>
-            <div class="form-row personnel"><div class="form-field"><input type="text" id="p-pe-pos" value="Project Engineering"></div><div class="form-field"><input type="number" min="0" id="p-pe-n" value="1"></div></div>
-            <div class="form-row personnel"><div class="form-field"><input type="text" id="p-sv-pos" value="Supervisor"></div><div class="form-field"><input type="number" min="0" id="p-sv-n" value="1"></div></div>
-            <div class="form-row personnel"><div class="form-field"><input type="text" id="p-qc-pos" value="QC"></div><div class="form-field"><input type="number" min="0" id="p-qc-n" value="1"></div></div>
+            <div class="form-row personnel">
+                <div class="form-field"><input type="text" id="p-cm-pos" value="Construction Manager"></div>
+                <div class="form-field"><input type="number" min="0" id="p-cm-n" value="1"></div>
+            </div>
             <div id="pc"></div>
             <button class="add-btn" id="addPBtn">+ Add Position</button>
         </div>
@@ -163,9 +164,10 @@
             <button class="add-btn" id="addEBtn">+ Add Equipment</button>
         </div>
 
+        <!-- ✅ แก้ไขหัวข้อ: DAILY ACTIVITY & GOALS -->
         <div class="form-group">
             <div class="form-section-header">🎯 DAILY ACTIVITY & GOALS</div>
-            <div class="form-row full"><div class="form-field"><textarea id="activities" placeholder="Describe completed tasks..."></textarea></div></div>
+            <div class="form-row full"><div class="form-field"><textarea id="activities" placeholder="Describe completed tasks and goals..."></textarea></div></div>
         </div>
 
         <div class="form-group">
@@ -192,6 +194,7 @@
         </div>
     </div>
 
+    <!-- PREVIEW -->
     <div id="preview" class="section">
         <div class="preview-top">
             <div>
@@ -217,7 +220,8 @@
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-w"></tbody></table>
         <div class="form-section-header" style="margin-top:12px">EQUIPMENT IN USE</div>
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Equipment</td></tr></thead><tbody id="prev-e"></tbody></table>
-        <div class="form-section-header" style="margin-top:12px">DAILY WORK SUMMARY</div>
+        <!-- ✅ Preview หัวข้อถูกต้อง -->
+        <div class="form-section-header" style="margin-top:12px">DAILY ACTIVITY & GOALS</div>
         <div class="preview-card" id="prev-act"></div>
         <div class="form-section-header" style="margin-top:12px">PROGRESS SUMMARY</div>
         <div class="preview-card" id="prev-prog"></div>
@@ -254,11 +258,12 @@ function fmtTime(t){if(!t) return '--';const[h,m]=t.split(':');return `${h}:${m}
 
 const APP={
     photos:[],pc:0,wc:0,ec:0,
-    pKeys:['cm','pe','sv','qc'],wKeys:['m','w'],
+    pKeys:['cm'], // ✅ เหลือแค่ cm
+    wKeys:['m','w'],
     deferredPrompt:null,
 
     init(){
-        document.getElementById('date').value=''+todayStr();
+        document.getElementById('date').value=todayStr();
         document.getElementById('timeStart').value='07:00';
         document.getElementById('timeEnd').value='18:00';
         this.updateDuration();
@@ -395,12 +400,8 @@ const APP={
         return `Daily report ${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(-2)}`;
     },
 
-    /* ══════════════════════════════════════════════
-       PRINT REPORT — จัดหน้าให้สวย ไม่ขาดกลางหัวข้อ
-    ══════════════════════════════════════════════ */
     printReport(){
         this.updatePreview();
-
         let pRows='',wRows='',eRows='';
         this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
         document.querySelectorAll('#pc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
@@ -412,22 +413,17 @@ const APP={
         const tS=this.v('timeStart'),tE=this.v('timeEnd');
         const timeStr=`${fmtTime(tS)} – ${fmtTime(tE)}  (${calcDuration(tS,tE)})`;
 
-        /* ── รูปภาพ: แบ่ง 2 รูปต่อแถว แต่ละแถว page-break-inside:avoid ── */
         let photoRows='';
         for(let i=0;i<this.photos.length;i+=2){
-            const a=this.photos[i], b=this.photos[i+1];
-            photoRows+=`
-            <div class="pg-row">
-                <div class="pg-cell">
-                    <img src="${a}">
-                    <span class="pg-num">Photo ${i+1}</span>
-                </div>
+            const a=this.photos[i],b=this.photos[i+1];
+            photoRows+=`<div class="pg-row">
+                <div class="pg-cell"><img src="${a}"><span class="pg-num">Photo ${i+1}</span></div>
                 ${b?`<div class="pg-cell"><img src="${b}"><span class="pg-num">Photo ${i+2}</span></div>`:'<div class="pg-cell"></div>'}
             </div>`;
         }
-        const photoHtml = this.photos.length
-            ? `<div class="pg">${photoRows}</div>`
-            : '<p class="empty">No photos uploaded</p>';
+        const photoHtml=this.photos.length
+            ?`<div class="pg">${photoRows}</div>`
+            :'<p class="empty">No photos uploaded</p>';
 
         const proj=this.v('projectName'),rawDate=new Date(this.v('date')),fn=this.getFilename();
         const dateStr=rawDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -435,191 +431,45 @@ const APP={
 
         const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${fn}</title>
 <style>
-/* ── PAGE SETUP ── */
-@page {
-    size: A4 portrait;
-    margin: 14mm 16mm 16mm 16mm;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body {
-    width: 210mm;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10pt;
-    color: #111;
-    background: white;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
-
-/* ── REPORT HEADER ── */
-.rpt-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 10px;
-    margin-bottom: 14px;
-    border-bottom: 3px solid #1e3a8a;
-}
-.rpt-logo { height: 46px; width: auto; object-fit: contain; }
-.rpt-title-wrap { text-align: right; }
-.rpt-title { font-size: 14pt; font-weight: 900; color: #1e3a8a; line-height: 1.2; }
-.rpt-sub { font-size: 8.5pt; color: #555; margin-top: 3px; }
-.rpt-badge {
-    margin-top: 6px;
-    display: inline-block;
-    background: #1e3a8a !important;
-    color: white !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 8pt;
-    font-weight: 700;
-    line-height: 1.65;
-    text-align: left;
-}
-
-/* ── SECTION BLOCK: header + content ไม่แยกกัน ── */
-.rpt-section {
-    margin-top: 10px;
-    page-break-inside: avoid;
-    break-inside: avoid;
-}
-/* ถ้า section ใหญ่เกินให้ขึ้นหน้าใหม่ แทนที่จะแตกกลาง */
-.rpt-section.breakable {
-    page-break-inside: auto;
-    break-inside: auto;
-}
-
-/* ── SECTION HEADER BAR ── */
-.sec-bar {
-    padding: 6px 10px;
-    font-size: 9.5pt;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    color: white !important;
-    background: #1e3a8a !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    border-radius: 3px 3px 0 0;
-    /* ป้องกัน header แยกจาก content */
-    page-break-after: avoid;
-    break-after: avoid;
-}
-
-/* ── TABLES ── */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 10pt;
-}
-th, td { border: 1px solid #bbb; padding: 5px 8px; vertical-align: middle; }
-thead tr {
-    background: #dce3ea !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
-thead th { font-weight: 700; font-size: 9.5pt; }
-.tc { text-align: center; width: 20%; font-weight: 700; }
-tr:nth-child(even) td {
-    background: #f5f7ff !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
-.gt td:first-child {
-    font-weight: 700; width: 32%;
-    background: #e8eef8 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
-
-/* ── TEXT BOX ── */
-.text-box {
-    border: 1px solid #bbb;
-    border-top: none;
-    padding: 8px 10px;
-    font-size: 10pt;
-    min-height: 48px;
-    white-space: pre-wrap;
-    line-height: 1.55;
-    background: #fafbff !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
-
-/* ── PHOTOS: แต่ละแถว 2 รูป ไม่ขาดกลาง ── */
-.pg {
-    border: 1px solid #bbb;
-    border-top: none;
-    padding: 8px;
-}
-.pg-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-    page-break-inside: avoid;   /* ← แถวรูปไม่แตกกลาง */
-    break-inside: avoid;
-}
-.pg-row:last-child { margin-bottom: 0; }
-.pg-cell {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.pg-cell img {
-    width: 100%;
-    max-height: 95mm;
-    object-fit: contain;
-    border: 1px solid #ccc;
-    display: block;
-}
-.pg-num {
-    font-size: 8pt;
-    color: #666;
-    margin-top: 3px;
-    text-align: center;
-}
-.empty {
-    border: 1px solid #bbb;
-    border-top: none;
-    padding: 12px;
-    color: #aaa;
-    font-size: 9pt;
-}
-
-/* ── FOOTER ── */
-.rpt-footer {
-    margin-top: 16px;
-    padding-top: 7px;
-    border-top: 2px solid #1e3a8a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 8pt;
-    color: #555;
-    page-break-inside: avoid;
-    break-inside: avoid;
-}
-.copy { font-weight: 700; color: #1e3a8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-.copy-red { color: #dc2626 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-</style>
-</head><body>
-
-<!-- ══ HEADER ══ -->
+@page{size:A4 portrait;margin:14mm 16mm 16mm 16mm}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:210mm;font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#111;background:white;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.rpt-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:14px;border-bottom:3px solid #1e3a8a}
+.rpt-logo{height:46px;width:auto;object-fit:contain}
+.rpt-title{font-size:14pt;font-weight:900;color:#1e3a8a;line-height:1.2;text-align:right}
+.rpt-sub{font-size:8.5pt;color:#555;margin-top:3px;text-align:right}
+.rpt-badge{margin-top:6px;display:inline-block;background:#1e3a8a!important;color:white!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;padding:4px 10px;border-radius:4px;font-size:8pt;font-weight:700;line-height:1.65;text-align:left}
+.rpt-section{margin-top:10px;page-break-inside:avoid;break-inside:avoid}
+.rpt-section.breakable{page-break-inside:auto;break-inside:auto}
+.sec-bar{padding:6px 10px;font-size:9.5pt;font-weight:700;letter-spacing:.4px;color:white!important;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:3px 3px 0 0;page-break-after:avoid;break-after:avoid}
+table{width:100%;border-collapse:collapse;font-size:10pt}
+th,td{border:1px solid #bbb;padding:5px 8px;vertical-align:middle}
+thead tr{background:#dce3ea!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+thead th{font-weight:700;font-size:9.5pt}
+.tc{text-align:center;width:20%;font-weight:700}
+tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.gt td:first-child{font-weight:700;width:32%;background:#e8eef8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.text-box{border:1px solid #bbb;border-top:none;padding:8px 10px;font-size:10pt;min-height:48px;white-space:pre-wrap;line-height:1.55;background:#fafbff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.pg{border:1px solid #bbb;border-top:none;padding:8px}
+.pg-row{display:flex;gap:8px;margin-bottom:8px;page-break-inside:avoid;break-inside:avoid}
+.pg-row:last-child{margin-bottom:0}
+.pg-cell{flex:1;display:flex;flex-direction:column;align-items:center}
+.pg-cell img{width:100%;max-height:95mm;object-fit:contain;border:1px solid #ccc;display:block}
+.pg-num{font-size:8pt;color:#666;margin-top:3px;text-align:center}
+.empty{border:1px solid #bbb;border-top:none;padding:12px;color:#aaa;font-size:9pt}
+.rpt-footer{margin-top:16px;padding-top:7px;border-top:2px solid #1e3a8a;display:flex;justify-content:space-between;align-items:center;font-size:8pt;color:#555;page-break-inside:avoid;break-inside:avoid}
+.copy{font-weight:700;color:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.copy-red{color:#dc2626!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+</style></head><body>
 <div class="rpt-header">
     <img class="rpt-logo" src="${LOGO_URL}" alt="REPCO NEX" onerror="this.style.display='none'">
-    <div class="rpt-title-wrap">
+    <div>
         <div class="rpt-title">Daily Construction Site Report</div>
         <div class="rpt-sub">${proj}</div>
-        <div class="rpt-badge">
-            📅 ${rawDate.toLocaleDateString('en-GB')} &nbsp;|&nbsp; ⏱ ${timeStr}<br>
-            🌤️ ${this.v('weather')||'-'} &nbsp;|&nbsp; 📍 ${this.v('location')||'-'}
-        </div>
+        <div class="rpt-badge">📅 ${rawDate.toLocaleDateString('en-GB')} &nbsp;|&nbsp; ⏱ ${timeStr}<br>🌤️ ${this.v('weather')||'-'} &nbsp;|&nbsp; 📍 ${this.v('location')||'-'}</div>
     </div>
 </div>
 
-<!-- ══ GENERAL INFORMATION ══ -->
 <div class="rpt-section">
     <div class="sec-bar">GENERAL INFORMATION</div>
     <table class="gt">
@@ -631,66 +481,45 @@ tr:nth-child(even) td {
     </table>
 </div>
 
-<!-- ══ REPCO PERSONNEL ══ -->
 <div class="rpt-section">
     <div class="sec-bar">REPCO PERSONNEL</div>
-    <table>
-        <thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
-        <tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody>
-    </table>
+    <table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
+    <tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
 </div>
 
-<!-- ══ STATE PERSONNEL ══ -->
 <div class="rpt-section">
     <div class="sec-bar">STATE PERSONNEL</div>
-    <table>
-        <thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
-        <tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody>
-    </table>
+    <table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
+    <tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
 </div>
 
-<!-- ══ EQUIPMENT ══ -->
 <div class="rpt-section">
     <div class="sec-bar">EQUIPMENT IN USE</div>
-    <table>
-        <thead><tr><th>Equipment / Machinery</th></tr></thead>
-        <tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody>
-    </table>
+    <table><thead><tr><th>Equipment / Machinery</th></tr></thead>
+    <tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table>
 </div>
 
-<!-- ══ DAILY WORK SUMMARY ══ -->
+<!-- ✅ PDF หัวข้อถูกต้อง -->
 <div class="rpt-section breakable">
-    <div class="sec-bar">DAILY WORK SUMMARY</div>
+    <div class="sec-bar">DAILY ACTIVITY &amp; GOALS</div>
     <div class="text-box">${this.v('activities')||'-'}</div>
 </div>
 
-<!-- ══ PROGRESS SUMMARY ══ -->
 <div class="rpt-section breakable">
     <div class="sec-bar">PROGRESS SUMMARY</div>
     <div class="text-box">${this.v('progress')||'-'}</div>
 </div>
 
-<!-- ══ SITE PHOTOS ══ -->
 <div class="rpt-section breakable">
     <div class="sec-bar">SITE PHOTOS &nbsp;(${this.photos.length} รูป)</div>
     ${photoHtml}
 </div>
 
-<!-- ══ FOOTER ══ -->
 <div class="rpt-footer">
     <div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div>
-    <div style="text-align:right">
-        <div>${fn}</div>
-        <div>Generated: ${new Date().toLocaleString('en-GB')}</div>
-    </div>
+    <div style="text-align:right"><div>${fn}</div><div>Generated: ${new Date().toLocaleString('en-GB')}</div></div>
 </div>
-
-<script>
-window.addEventListener('load', function() {
-    document.title = '${fn}';
-    setTimeout(function(){ window.print(); }, 600);
-});
-<\/script>
+<script>window.addEventListener('load',function(){document.title='${fn}';setTimeout(function(){window.print();},600);});<\/script>
 </body></html>`;
 
         const blob=new Blob([html],{type:'text/html;charset=utf-8'});
@@ -712,7 +541,7 @@ window.addEventListener('load', function() {
         this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wSum+=`  • ${p}: ${n} คน\n`;});
         if(this.v('eq1')) eSum+=`  • ${this.v('eq1')}\n`;
         document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eSum+=`  • ${el.value}\n`;});
-        const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n⏱ ${timeStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${pSum||'  -\n'}\n👥 STATE PERSONNEL\n${wSum||'  -\n'}\n🚜 EQUIPMENT\n${eSum||'  -\n'}\n🎯 ACTIVITY\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
+        const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n⏱ ${timeStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${pSum||'  -\n'}\n👥 STATE PERSONNEL\n${wSum||'  -\n'}\n🚜 EQUIPMENT\n${eSum||'  -\n'}\n🎯 DAILY ACTIVITY & GOALS\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
         const lineUrl=`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         if(navigator.share){
             navigator.share({title:this.getFilename(),text:msg}).catch(()=>window.open(lineUrl,'_blank'));
@@ -740,8 +569,9 @@ window.addEventListener('load', function() {
         if(!d) return this.toast('❌ No draft found!');
         Object.entries(d.g||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el) el.value=v;});
         this.updateDuration();
-        const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
-        this.pKeys.forEach(k=>{document.getElementById(`p-${k}-pos`).value=d.p?.[k]?.pos||pd[k];document.getElementById(`p-${k}-n`).value=d.p?.[k]?.n||'1';});
+        // ✅ load แค่ cm
+        document.getElementById('p-cm-pos').value=d.p?.cm?.pos||'Construction Manager';
+        document.getElementById('p-cm-n').value=d.p?.cm?.n||'1';
         const wd={m:'Worker (M)',w:'Worker (W)'};
         this.wKeys.forEach(k=>{document.getElementById(`w-${k}-pos`).value=d.w?.[k]?.pos||wd[k];document.getElementById(`w-${k}-n`).value=d.w?.[k]?.n||'1';});
         ['pc','wc','ec'].forEach(id=>document.getElementById(id).innerHTML='');
@@ -759,8 +589,9 @@ window.addEventListener('load', function() {
         document.getElementById('timeEnd').value='18:00';
         this.updateDuration();
         document.getElementById('projectName').value='Suwannaphum Rice Co., Ltd. - RISE Project';
-        const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
-        this.pKeys.forEach(k=>{document.getElementById(`p-${k}-pos`).value=pd[k];document.getElementById(`p-${k}-n`).value='1';});
+        // ✅ reset แค่ cm
+        document.getElementById('p-cm-pos').value='Construction Manager';
+        document.getElementById('p-cm-n').value='1';
         this.wKeys.forEach(k=>{document.getElementById(`w-${k}-pos`).value=k==='m'?'Worker (M)':'Worker (W)';document.getElementById(`w-${k}-n`).value='1';});
         ['pc','wc','ec'].forEach(id=>document.getElementById(id).innerHTML='');
         this.photos=[];this.pc=this.wc=this.ec=0;
