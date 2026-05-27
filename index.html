@@ -30,7 +30,7 @@
     .form-section-header:first-of-type { margin-top:0; }
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
     .form-row.full { grid-template-columns:1fr; }
-    .form-row.thirds { grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
+    .form-row.time-row { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; margin-bottom:12px; align-items:flex-end; }
     .form-row.personnel { grid-template-columns:2fr 70px 38px; gap:8px; margin-bottom:8px; align-items:flex-end; }
     .form-row.equipment { grid-template-columns:1fr 38px; gap:8px; margin-bottom:8px; align-items:flex-end; }
     .form-field { display:flex; flex-direction:column; }
@@ -38,20 +38,16 @@
     .form-field input,.form-field select,.form-field textarea { padding:9px 11px; border:1.5px solid #d1d5db; border-radius:5px; font-size:13px; font-family:inherit; transition:border-color .2s; }
     .form-field input:focus,.form-field select:focus,.form-field textarea:focus { outline:none; border-color:#1e3a8a; box-shadow:0 0 0 3px rgba(30,58,138,.1); }
     .form-field textarea { resize:vertical; min-height:88px; }
-
-    /* Time row — date กว้างกว่า, time start/end เท่ากัน */
-    .form-row.time-row { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; margin-bottom:12px; align-items:flex-end; }
-
     .add-btn { background:#f0f4ff; color:#1e3a8a; border:1.5px dashed #93c5fd; padding:8px 12px; border-radius:5px; font-size:13px; font-weight:600; cursor:pointer; margin-top:6px; width:100%; }
     .delete-btn { background:#fee2e2; color:#dc2626; border:1px solid #fecaca; min-width:38px; height:38px; border-radius:5px; cursor:pointer; font-size:13px; }
     .buttons { display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid #e5e7eb; }
     .btn { flex:1; padding:11px 14px; border:none; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; }
     .btn:active { transform:scale(.97); opacity:.9; }
-    .btn-dark  { background:#1e3a8a; color:white; }
+    .btn-dark { background:#1e3a8a; color:white; }
     .btn-green { background:#10b981; color:white; }
-    .btn-red   { background:#dc2626; color:white; }
-    .btn-line  { background:#06c755; color:white; }
-    .btn-gray  { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; }
+    .btn-red { background:#dc2626; color:white; }
+    .btn-line { background:#06c755; color:white; }
+    .btn-gray { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; }
     .draft-section { background:#eff6ff; border:1.5px solid #93c5fd; border-radius:8px; padding:14px; margin-bottom:16px; }
     .draft-title { font-weight:700; color:#1e40af; margin-bottom:10px; font-size:13px; }
     .draft-buttons { display:flex; gap:10px; }
@@ -121,58 +117,25 @@
 
         <div class="form-group">
             <div class="form-section-header">📅 GENERAL</div>
-
-            <!-- Row 1: Date + Location -->
             <div class="form-row">
-                <div class="form-field">
-                    <label>📅 Date</label>
-                    <input type="date" id="date">
-                </div>
-                <div class="form-field">
-                    <label>📍 Location</label>
-                    <input type="text" id="location" placeholder="Site location">
-                </div>
+                <div class="form-field"><label>📅 Date</label><input type="date" id="date"></div>
+                <div class="form-field"><label>📍 Location</label><input type="text" id="location" placeholder="Site location"></div>
             </div>
-
-            <!-- Row 2: Time Start + Time End + separator -->
             <div class="form-row time-row">
-                <div class="form-field">
-                    <label>🕖 Work Start</label>
-                    <input type="time" id="timeStart" value="07:00">
-                </div>
-                <div class="form-field">
-                    <label>🕕 Work End</label>
-                    <input type="time" id="timeEnd" value="18:00">
-                </div>
-                <div class="form-field">
-                    <label>⏱ Duration</label>
-                    <input type="text" id="timeDuration" readonly
-                           style="background:#f0f4ff;color:#1e3a8a;font-weight:700;cursor:default"
-                           placeholder="--">
-                </div>
+                <div class="form-field"><label>🕖 Work Start</label><input type="time" id="timeStart" value="07:00"></div>
+                <div class="form-field"><label>🕕 Work End</label><input type="time" id="timeEnd" value="18:00"></div>
+                <div class="form-field"><label>⏱ Duration</label><input type="text" id="timeDuration" readonly style="background:#f0f4ff;color:#1e3a8a;font-weight:700;cursor:default"></div>
             </div>
-
-            <!-- Row 3: Project Name -->
-            <div class="form-row full">
-                <div class="form-field">
-                    <label>🏢 Project Name</label>
-                    <input type="text" id="projectName" value="Suwannaphum Rice Co., Ltd. - RISE Project">
-                </div>
-            </div>
-
-            <!-- Row 4: Weather -->
-            <div class="form-row full">
-                <div class="form-field">
-                    <label>🌤️ Weather</label>
-                    <select id="weather">
-                        <option value="">-- Select Weather --</option>
-                        <option>Sunny (ท้องฟ้าโปร่งใส)</option>
-                        <option>Cloudy (มีเมฆ)</option>
-                        <option>Rainy (ฝนตก)</option>
-                        <option>Windy (ลมแรง)</option>
-                    </select>
-                </div>
-            </div>
+            <div class="form-row full"><div class="form-field"><label>🏢 Project Name</label><input type="text" id="projectName" value="Suwannaphum Rice Co., Ltd. - RISE Project"></div></div>
+            <div class="form-row full"><div class="form-field"><label>🌤️ Weather</label>
+                <select id="weather">
+                    <option value="">-- Select Weather --</option>
+                    <option>Sunny (ท้องฟ้าโปร่งใส)</option>
+                    <option>Cloudy (มีเมฆ)</option>
+                    <option>Rainy (ฝนตก)</option>
+                    <option>Windy (ลมแรง)</option>
+                </select>
+            </div></div>
         </div>
 
         <div class="form-group">
@@ -215,10 +178,7 @@
             <button type="button" class="photo-add-btn">
                 <input type="file" accept="image/*" multiple id="photoInput">
                 <span class="btn-icon">📷</span>
-                <span>
-                    <div>เพิ่มรูปภาพ</div>
-                    <div class="photo-add-sub">เลือกหลายรูปพร้อมกันได้ • ไม่จำกัดจำนวน</div>
-                </span>
+                <span><div>เพิ่มรูปภาพ</div><div class="photo-add-sub">เลือกหลายรูปพร้อมกันได้ • ไม่จำกัดจำนวน</div></span>
             </button>
             <div class="photo-counter" id="photoCounter" style="display:none">
                 <span class="photo-counter-label">📷 รูปที่แนบ</span>
@@ -232,7 +192,6 @@
         </div>
     </div>
 
-    <!-- PREVIEW -->
     <div id="preview" class="section">
         <div class="preview-top">
             <div>
@@ -244,7 +203,6 @@
                 <button class="btn btn-line" id="lineBtn"  style="padding:9px 12px;font-size:12px">💬 Share LINE</button>
             </div>
         </div>
-
         <div class="form-section-header">GENERAL INFORMATION</div>
         <table class="preview-table">
             <tr><td>Project:</td><td id="prev-name"></td></tr>
@@ -253,7 +211,6 @@
             <tr><td>Location:</td><td id="prev-loc"></td></tr>
             <tr><td>Weather:</td><td id="prev-weather"></td></tr>
         </table>
-
         <div class="form-section-header" style="margin-top:12px">REPCO PERSONNEL</div>
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-p"></tbody></table>
         <div class="form-section-header" style="margin-top:12px">STATE PERSONNEL</div>
@@ -272,31 +229,20 @@
 <script>
 const LOGO_URL = 'https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png';
 
-function todayStr() {
-    const d = new Date();
+function todayStr(){
+    const d=new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
-/* ── คำนวณชั่วโมงทำงาน ── */
-function calcDuration(start, end) {
-    if (!start || !end) return '--';
-    const [sh, sm] = start.split(':').map(Number);
-    const [eh, em] = end.split(':').map(Number);
-    const totalMin = (eh * 60 + em) - (sh * 60 + sm);
-    if (totalMin <= 0) return '--';
-    const h = Math.floor(totalMin / 60);
-    const m = totalMin % 60;
-    return m > 0 ? `${h} hrs ${m} min` : `${h} hrs`;
+function calcDuration(s,e){
+    if(!s||!e) return '--';
+    const[sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
+    const m=(eh*60+em)-(sh*60+sm);
+    if(m<=0) return '--';
+    const h=Math.floor(m/60),r=m%60;
+    return r>0?`${h} hrs ${r} min`:`${h} hrs`;
 }
+function fmtTime(t){if(!t) return '--';const[h,m]=t.split(':');return `${h}:${m}`;}
 
-/* ── Format time 07:00 → 07:00 ── */
-function fmtTime(t) {
-    if (!t) return '--';
-    const [h, m] = t.split(':');
-    return `${h}:${m}`;
-}
-
-/* ── PWA ── */
 (function(){
     const m={name:'Daily Construction Report',short_name:'Daily Report',start_url:location.href,display:'standalone',orientation:'portrait',theme_color:'#1e3a8a',background_color:'#f0f4f8',icons:[{src:LOGO_URL,sizes:'192x192',type:'image/png'}]};
     document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
@@ -306,16 +252,15 @@ function fmtTime(t) {
     }
 })();
 
-const APP = {
+const APP={
     photos:[],pc:0,wc:0,ec:0,
     pKeys:['cm','pe','sv','qc'],wKeys:['m','w'],
     deferredPrompt:null,
 
     init(){
-        /* ตั้ง default */
-        document.getElementById('date').value      = todayStr();
-        document.getElementById('timeStart').value = '07:00';
-        document.getElementById('timeEnd').value   = '18:00';
+        document.getElementById('date').value=''+todayStr();
+        document.getElementById('timeStart').value='07:00';
+        document.getElementById('timeEnd').value='18:00';
         this.updateDuration();
 
         document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>this.switchTab(t.dataset.tab)));
@@ -331,11 +276,8 @@ const APP = {
         on('installBtn',  ()=>this.installPWA());
 
         document.getElementById('photoInput').addEventListener('change',e=>{this.handleFiles(e.target.files);e.target.value='';});
-
-        /* อัปเดต duration เมื่อเปลี่ยน time */
         document.getElementById('timeStart').addEventListener('change',()=>this.updateDuration());
         document.getElementById('timeEnd').addEventListener('change',()=>this.updateDuration());
-
         document.querySelectorAll('input:not(#photoInput),select,textarea').forEach(el=>el.addEventListener('input',()=>this.updatePreview()));
         window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();this.deferredPrompt=e;document.getElementById('installBtn').classList.add('show');});
         window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').classList.remove('show');this.toast('✅ ติดตั้ง App สำเร็จ!');});
@@ -343,9 +285,8 @@ const APP = {
     },
 
     updateDuration(){
-        const s = document.getElementById('timeStart').value;
-        const e = document.getElementById('timeEnd').value;
-        document.getElementById('timeDuration').value = calcDuration(s, e);
+        const s=document.getElementById('timeStart').value,e=document.getElementById('timeEnd').value;
+        document.getElementById('timeDuration').value=calcDuration(s,e);
         this.updatePreview();
     },
 
@@ -429,11 +370,8 @@ const APP = {
 
     updatePreview(){
         const proj=this.v('projectName'),date=new Date(this.v('date'));
-        const tStart=this.v('timeStart'), tEnd=this.v('timeEnd');
-        const timeStr = (tStart && tEnd)
-            ? `${fmtTime(tStart)} – ${fmtTime(tEnd)}  (${calcDuration(tStart, tEnd)})`
-            : '--';
-
+        const tS=this.v('timeStart'),tE=this.v('timeEnd');
+        const timeStr=(tS&&tE)?`${fmtTime(tS)} – ${fmtTime(tE)}  (${calcDuration(tS,tE)})`:'--';
         document.getElementById('prev-name').textContent=proj;
         document.getElementById('prev-subtitle').textContent=proj;
         document.getElementById('prev-date').textContent=date.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -457,8 +395,12 @@ const APP = {
         return `Daily report ${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(-2)}`;
     },
 
+    /* ══════════════════════════════════════════════
+       PRINT REPORT — จัดหน้าให้สวย ไม่ขาดกลางหัวข้อ
+    ══════════════════════════════════════════════ */
     printReport(){
         this.updatePreview();
+
         let pRows='',wRows='',eRows='';
         this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
         document.querySelectorAll('#pc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
@@ -467,78 +409,288 @@ const APP = {
         if(this.v('eq1')) eRows+=`<tr><td>${this.v('eq1')}</td></tr>`;
         document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eRows+=`<tr><td>${el.value}</td></tr>`;});
 
-        const tStart=this.v('timeStart'), tEnd=this.v('timeEnd');
-        const timeStr=`${fmtTime(tStart)} – ${fmtTime(tEnd)}  (${calcDuration(tStart,tEnd)})`;
+        const tS=this.v('timeStart'),tE=this.v('timeEnd');
+        const timeStr=`${fmtTime(tS)} – ${fmtTime(tE)}  (${calcDuration(tS,tE)})`;
 
-        const photoHtml=this.photos.length
-            ?`<div class="pg">${this.photos.map((p,i)=>`<div class="pg-item"><img src="${p}"><span class="pg-num">Photo ${i+1}</span></div>`).join('')}</div>`
-            :'<p class="empty">No photos uploaded</p>';
+        /* ── รูปภาพ: แบ่ง 2 รูปต่อแถว แต่ละแถว page-break-inside:avoid ── */
+        let photoRows='';
+        for(let i=0;i<this.photos.length;i+=2){
+            const a=this.photos[i], b=this.photos[i+1];
+            photoRows+=`
+            <div class="pg-row">
+                <div class="pg-cell">
+                    <img src="${a}">
+                    <span class="pg-num">Photo ${i+1}</span>
+                </div>
+                ${b?`<div class="pg-cell"><img src="${b}"><span class="pg-num">Photo ${i+2}</span></div>`:'<div class="pg-cell"></div>'}
+            </div>`;
+        }
+        const photoHtml = this.photos.length
+            ? `<div class="pg">${photoRows}</div>`
+            : '<p class="empty">No photos uploaded</p>';
 
         const proj=this.v('projectName'),rawDate=new Date(this.v('date')),fn=this.getFilename();
         const dateStr=rawDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
         const yr=new Date().getFullYear();
 
-        const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${fn}</title><style>
-@page{size:A4 portrait;margin:12mm 15mm 14mm 15mm}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:210mm;font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.rh{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:12px;border-bottom:3px solid #1e3a8a}
-.rh-logo{height:48px;width:auto;object-fit:contain}
-.rh-right{text-align:right}
-.rh-title{font-size:13.5pt;font-weight:900;color:#1e3a8a}
-.rh-sub{font-size:8.5pt;color:#555;margin-top:3px}
-.badge{margin-top:5px;display:inline-block;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;padding:4px 10px;border-radius:4px;font-size:8pt;font-weight:700;line-height:1.6}
-.sec{margin-top:10px;margin-bottom:0;padding:5px 10px;font-size:9.5pt;font-weight:700;color:#fff!important;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:2px 2px 0 0}
-table{width:100%;border-collapse:collapse;font-size:10pt;page-break-inside:avoid}
-th,td{border:1px solid #aaa;padding:5px 8px;vertical-align:middle}
-thead tr{background:#dce3ea!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-thead th{font-weight:700;font-size:9.5pt}
-.tc{text-align:center;width:20%;font-weight:700}
-tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.gt td:first-child{font-weight:700;width:32%;background:#e8eef8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.box{border:1px solid #aaa;border-top:none;padding:8px 10px;font-size:10pt;min-height:52px;white-space:pre-wrap;line-height:1.5;page-break-inside:avoid;background:#fafbff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;border:1px solid #aaa;border-top:none}
-.pg-item{page-break-inside:avoid}
-.pg-item img{width:100%;max-height:100mm;object-fit:contain;border:1px solid #ccc;display:block}
-.pg-num{display:block;text-align:center;font-size:8pt;color:#666;margin-top:2px}
-.empty{border:1px solid #aaa;border-top:none;padding:12px;color:#aaa;font-size:9pt}
-.footer{margin-top:14px;padding-top:7px;border-top:2px solid #1e3a8a;display:flex;justify-content:space-between;align-items:center;font-size:8pt;color:#555}
-.copy{font-weight:700;color:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.copy-red{color:#dc2626!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-</style></head><body>
-<div class="rh">
-    <img class="rh-logo" src="${LOGO_URL}" alt="REPCO NEX" onerror="this.style.display='none'">
-    <div class="rh-right">
-        <div class="rh-title">Daily Construction Site Report</div>
-        <div class="rh-sub">${proj}</div>
-        <div class="badge">📅 ${rawDate.toLocaleDateString('en-GB')}&nbsp;&nbsp;🌤️ ${this.v('weather')||'-'}<br>📍 ${this.v('location')||'-'}&nbsp;&nbsp;⏱ ${timeStr}</div>
+        const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${fn}</title>
+<style>
+/* ── PAGE SETUP ── */
+@page {
+    size: A4 portrait;
+    margin: 14mm 16mm 16mm 16mm;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+    width: 210mm;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #111;
+    background: white;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* ── REPORT HEADER ── */
+.rpt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    border-bottom: 3px solid #1e3a8a;
+}
+.rpt-logo { height: 46px; width: auto; object-fit: contain; }
+.rpt-title-wrap { text-align: right; }
+.rpt-title { font-size: 14pt; font-weight: 900; color: #1e3a8a; line-height: 1.2; }
+.rpt-sub { font-size: 8.5pt; color: #555; margin-top: 3px; }
+.rpt-badge {
+    margin-top: 6px;
+    display: inline-block;
+    background: #1e3a8a !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 8pt;
+    font-weight: 700;
+    line-height: 1.65;
+    text-align: left;
+}
+
+/* ── SECTION BLOCK: header + content ไม่แยกกัน ── */
+.rpt-section {
+    margin-top: 10px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+/* ถ้า section ใหญ่เกินให้ขึ้นหน้าใหม่ แทนที่จะแตกกลาง */
+.rpt-section.breakable {
+    page-break-inside: auto;
+    break-inside: auto;
+}
+
+/* ── SECTION HEADER BAR ── */
+.sec-bar {
+    padding: 6px 10px;
+    font-size: 9.5pt;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: white !important;
+    background: #1e3a8a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    border-radius: 3px 3px 0 0;
+    /* ป้องกัน header แยกจาก content */
+    page-break-after: avoid;
+    break-after: avoid;
+}
+
+/* ── TABLES ── */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+}
+th, td { border: 1px solid #bbb; padding: 5px 8px; vertical-align: middle; }
+thead tr {
+    background: #dce3ea !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+thead th { font-weight: 700; font-size: 9.5pt; }
+.tc { text-align: center; width: 20%; font-weight: 700; }
+tr:nth-child(even) td {
+    background: #f5f7ff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.gt td:first-child {
+    font-weight: 700; width: 32%;
+    background: #e8eef8 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* ── TEXT BOX ── */
+.text-box {
+    border: 1px solid #bbb;
+    border-top: none;
+    padding: 8px 10px;
+    font-size: 10pt;
+    min-height: 48px;
+    white-space: pre-wrap;
+    line-height: 1.55;
+    background: #fafbff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* ── PHOTOS: แต่ละแถว 2 รูป ไม่ขาดกลาง ── */
+.pg {
+    border: 1px solid #bbb;
+    border-top: none;
+    padding: 8px;
+}
+.pg-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    page-break-inside: avoid;   /* ← แถวรูปไม่แตกกลาง */
+    break-inside: avoid;
+}
+.pg-row:last-child { margin-bottom: 0; }
+.pg-cell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.pg-cell img {
+    width: 100%;
+    max-height: 95mm;
+    object-fit: contain;
+    border: 1px solid #ccc;
+    display: block;
+}
+.pg-num {
+    font-size: 8pt;
+    color: #666;
+    margin-top: 3px;
+    text-align: center;
+}
+.empty {
+    border: 1px solid #bbb;
+    border-top: none;
+    padding: 12px;
+    color: #aaa;
+    font-size: 9pt;
+}
+
+/* ── FOOTER ── */
+.rpt-footer {
+    margin-top: 16px;
+    padding-top: 7px;
+    border-top: 2px solid #1e3a8a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8pt;
+    color: #555;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+.copy { font-weight: 700; color: #1e3a8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+.copy-red { color: #dc2626 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+</style>
+</head><body>
+
+<!-- ══ HEADER ══ -->
+<div class="rpt-header">
+    <img class="rpt-logo" src="${LOGO_URL}" alt="REPCO NEX" onerror="this.style.display='none'">
+    <div class="rpt-title-wrap">
+        <div class="rpt-title">Daily Construction Site Report</div>
+        <div class="rpt-sub">${proj}</div>
+        <div class="rpt-badge">
+            📅 ${rawDate.toLocaleDateString('en-GB')} &nbsp;|&nbsp; ⏱ ${timeStr}<br>
+            🌤️ ${this.v('weather')||'-'} &nbsp;|&nbsp; 📍 ${this.v('location')||'-'}
+        </div>
     </div>
 </div>
-<div class="sec">GENERAL INFORMATION</div>
-<table class="gt">
-    <tr><td>Project Name</td><td>${proj}</td></tr>
-    <tr><td>Date</td><td>${dateStr}</td></tr>
-    <tr><td>Working Hours</td><td>${timeStr}</td></tr>
-    <tr><td>Location</td><td>${this.v('location')||'-'}</td></tr>
-    <tr><td>Weather Conditions</td><td>${this.v('weather')||'-'}</td></tr>
-</table>
-<div class="sec">REPCO PERSONNEL</div>
-<table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
-<tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
-<div class="sec">STATE PERSONNEL</div>
-<table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
-<tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table>
-<div class="sec">EQUIPMENT IN USE</div>
-<table><thead><tr><th>Equipment / Machinery</th></tr></thead>
-<tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table>
-<div class="sec">DAILY WORK SUMMARY</div><div class="box">${this.v('activities')||'-'}</div>
-<div class="sec">PROGRESS SUMMARY</div><div class="box">${this.v('progress')||'-'}</div>
-<div class="sec">SITE PHOTOS (${this.photos.length} รูป)</div>${photoHtml}
-<div class="footer">
-    <div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div>
-    <div style="text-align:right"><div>${fn}</div><div>Generated: ${new Date().toLocaleString('en-GB')}</div></div>
+
+<!-- ══ GENERAL INFORMATION ══ -->
+<div class="rpt-section">
+    <div class="sec-bar">GENERAL INFORMATION</div>
+    <table class="gt">
+        <tr><td>Project Name</td><td>${proj}</td></tr>
+        <tr><td>Date</td><td>${dateStr}</td></tr>
+        <tr><td>Working Hours</td><td>${timeStr}</td></tr>
+        <tr><td>Location</td><td>${this.v('location')||'-'}</td></tr>
+        <tr><td>Weather Conditions</td><td>${this.v('weather')||'-'}</td></tr>
+    </table>
 </div>
-<script>window.addEventListener('load',function(){document.title='${fn}';setTimeout(function(){window.print();},600);});<\/script>
+
+<!-- ══ REPCO PERSONNEL ══ -->
+<div class="rpt-section">
+    <div class="sec-bar">REPCO PERSONNEL</div>
+    <table>
+        <thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
+        <tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody>
+    </table>
+</div>
+
+<!-- ══ STATE PERSONNEL ══ -->
+<div class="rpt-section">
+    <div class="sec-bar">STATE PERSONNEL</div>
+    <table>
+        <thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead>
+        <tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody>
+    </table>
+</div>
+
+<!-- ══ EQUIPMENT ══ -->
+<div class="rpt-section">
+    <div class="sec-bar">EQUIPMENT IN USE</div>
+    <table>
+        <thead><tr><th>Equipment / Machinery</th></tr></thead>
+        <tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody>
+    </table>
+</div>
+
+<!-- ══ DAILY WORK SUMMARY ══ -->
+<div class="rpt-section breakable">
+    <div class="sec-bar">DAILY WORK SUMMARY</div>
+    <div class="text-box">${this.v('activities')||'-'}</div>
+</div>
+
+<!-- ══ PROGRESS SUMMARY ══ -->
+<div class="rpt-section breakable">
+    <div class="sec-bar">PROGRESS SUMMARY</div>
+    <div class="text-box">${this.v('progress')||'-'}</div>
+</div>
+
+<!-- ══ SITE PHOTOS ══ -->
+<div class="rpt-section breakable">
+    <div class="sec-bar">SITE PHOTOS &nbsp;(${this.photos.length} รูป)</div>
+    ${photoHtml}
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="rpt-footer">
+    <div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div>
+    <div style="text-align:right">
+        <div>${fn}</div>
+        <div>Generated: ${new Date().toLocaleString('en-GB')}</div>
+    </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    document.title = '${fn}';
+    setTimeout(function(){ window.print(); }, 600);
+});
+<\/script>
 </body></html>`;
 
         const blob=new Blob([html],{type:'text/html;charset=utf-8'});
@@ -552,8 +704,8 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
         this.updatePreview();
         const proj=this.v('projectName'),date=new Date(this.v('date'));
         const dateStr=date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-        const tStart=this.v('timeStart'),tEnd=this.v('timeEnd');
-        const timeStr=`${fmtTime(tStart)} – ${fmtTime(tEnd)} (${calcDuration(tStart,tEnd)})`;
+        const tS=this.v('timeStart'),tE=this.v('timeEnd');
+        const timeStr=`${fmtTime(tS)} – ${fmtTime(tE)} (${calcDuration(tS,tE)})`;
         let pSum='',wSum='',eSum='';
         this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pSum+=`  • ${p}: ${n} คน\n`;});
         document.querySelectorAll('#pc input[type="text"]').forEach(el=>{if(!el.value)return;const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';pSum+=`  • ${el.value}: ${n} คน\n`;});
@@ -602,9 +754,9 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
     clearForm(){
         if(!confirm('Clear all data?')) return;
         document.querySelectorAll('input[type="text"],input[type="number"],select,textarea').forEach(el=>el.value='');
-        document.getElementById('date').value      = todayStr();
-        document.getElementById('timeStart').value = '07:00';
-        document.getElementById('timeEnd').value   = '18:00';
+        document.getElementById('date').value=todayStr();
+        document.getElementById('timeStart').value='07:00';
+        document.getElementById('timeEnd').value='18:00';
         this.updateDuration();
         document.getElementById('projectName').value='Suwannaphum Rice Co., Ltd. - RISE Project';
         const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
