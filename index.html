@@ -22,7 +22,6 @@
     .tab:hover { color:#1e3a8a; background:#f8faff; }
     .tab-sp { flex:1; padding:11px 8px; border:none; border-bottom:3px solid transparent; background:none; cursor:pointer; font-size:13px; font-weight:600; color:#0f7b0f; text-align:center; white-space:nowrap; transition:all .25s; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:4px; }
     .tab-sp:hover { background:#f0fff0; border-bottom-color:#0f7b0f; }
-    .tab-sp:active { background:#dcfce7; }
     .container { display:flex; height:calc(100vh - 108px); padding:14px; overflow:hidden; }
     .section { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.1); display:none; flex:1; overflow-y:auto; padding:18px; }
     .section.active { display:block; }
@@ -31,6 +30,7 @@
     .form-section-header:first-of-type { margin-top:0; }
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
     .form-row.full { grid-template-columns:1fr; }
+    .form-row.thirds { grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
     .form-row.personnel { grid-template-columns:2fr 70px 38px; gap:8px; margin-bottom:8px; align-items:flex-end; }
     .form-row.equipment { grid-template-columns:1fr 38px; gap:8px; margin-bottom:8px; align-items:flex-end; }
     .form-field { display:flex; flex-direction:column; }
@@ -38,6 +38,10 @@
     .form-field input,.form-field select,.form-field textarea { padding:9px 11px; border:1.5px solid #d1d5db; border-radius:5px; font-size:13px; font-family:inherit; transition:border-color .2s; }
     .form-field input:focus,.form-field select:focus,.form-field textarea:focus { outline:none; border-color:#1e3a8a; box-shadow:0 0 0 3px rgba(30,58,138,.1); }
     .form-field textarea { resize:vertical; min-height:88px; }
+
+    /* Time row — date กว้างกว่า, time start/end เท่ากัน */
+    .form-row.time-row { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; margin-bottom:12px; align-items:flex-end; }
+
     .add-btn { background:#f0f4ff; color:#1e3a8a; border:1.5px dashed #93c5fd; padding:8px 12px; border-radius:5px; font-size:13px; font-weight:600; cursor:pointer; margin-top:6px; width:100%; }
     .delete-btn { background:#fee2e2; color:#dc2626; border:1px solid #fecaca; min-width:38px; height:38px; border-radius:5px; cursor:pointer; font-size:13px; }
     .buttons { display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid #e5e7eb; }
@@ -102,9 +106,7 @@
     <button class="tab" data-tab="preview">👁️ Preview</button>
     <a class="tab-sp"
        href="https://scgo365.sharepoint.com/:f:/r/sites/INTERNAL_B-26-6530_RISEProject/INTERNAL%20PC%20Package/07.PM/01.IMS/12.Daily%20Meeting?csf=1&web=1&e=Py8trl"
-       target="_blank" rel="noopener noreferrer">
-        📁 Upload
-    </a>
+       target="_blank" rel="noopener noreferrer">📁 Upload</a>
 </div>
 
 <div class="container">
@@ -119,24 +121,58 @@
 
         <div class="form-group">
             <div class="form-section-header">📅 GENERAL</div>
+
+            <!-- Row 1: Date + Location -->
             <div class="form-row">
                 <div class="form-field">
-                    <label>Date</label>
-                    <!-- ✅ ไม่ set value ที่นี่ — JS จะใส่วันปัจจุบันตอน init -->
+                    <label>📅 Date</label>
                     <input type="date" id="date">
                 </div>
-                <div class="form-field"><label>Location</label><input type="text" id="location" placeholder="Site location"></div>
+                <div class="form-field">
+                    <label>📍 Location</label>
+                    <input type="text" id="location" placeholder="Site location">
+                </div>
             </div>
-            <div class="form-row full"><div class="form-field"><label>Project Name</label><input type="text" id="projectName" value="Suwannaphum Rice Co., Ltd. - RISE Project"></div></div>
-            <div class="form-row full"><div class="form-field"><label>Weather</label>
-                <select id="weather">
-                    <option value="">-- Select Weather --</option>
-                    <option>Sunny (ท้องฟ้าโปร่งใส)</option>
-                    <option>Cloudy (มีเมฆ)</option>
-                    <option>Rainy (ฝนตก)</option>
-                    <option>Windy (ลมแรง)</option>
-                </select>
-            </div></div>
+
+            <!-- Row 2: Time Start + Time End + separator -->
+            <div class="form-row time-row">
+                <div class="form-field">
+                    <label>🕖 Work Start</label>
+                    <input type="time" id="timeStart" value="07:00">
+                </div>
+                <div class="form-field">
+                    <label>🕕 Work End</label>
+                    <input type="time" id="timeEnd" value="18:00">
+                </div>
+                <div class="form-field">
+                    <label>⏱ Duration</label>
+                    <input type="text" id="timeDuration" readonly
+                           style="background:#f0f4ff;color:#1e3a8a;font-weight:700;cursor:default"
+                           placeholder="--">
+                </div>
+            </div>
+
+            <!-- Row 3: Project Name -->
+            <div class="form-row full">
+                <div class="form-field">
+                    <label>🏢 Project Name</label>
+                    <input type="text" id="projectName" value="Suwannaphum Rice Co., Ltd. - RISE Project">
+                </div>
+            </div>
+
+            <!-- Row 4: Weather -->
+            <div class="form-row full">
+                <div class="form-field">
+                    <label>🌤️ Weather</label>
+                    <select id="weather">
+                        <option value="">-- Select Weather --</option>
+                        <option>Sunny (ท้องฟ้าโปร่งใส)</option>
+                        <option>Cloudy (มีเมฆ)</option>
+                        <option>Rainy (ฝนตก)</option>
+                        <option>Windy (ลมแรง)</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
@@ -196,6 +232,7 @@
         </div>
     </div>
 
+    <!-- PREVIEW -->
     <div id="preview" class="section">
         <div class="preview-top">
             <div>
@@ -207,13 +244,16 @@
                 <button class="btn btn-line" id="lineBtn"  style="padding:9px 12px;font-size:12px">💬 Share LINE</button>
             </div>
         </div>
+
         <div class="form-section-header">GENERAL INFORMATION</div>
         <table class="preview-table">
             <tr><td>Project:</td><td id="prev-name"></td></tr>
             <tr><td>Date:</td><td id="prev-date"></td></tr>
+            <tr><td>Working Hours:</td><td id="prev-time"></td></tr>
             <tr><td>Location:</td><td id="prev-loc"></td></tr>
             <tr><td>Weather:</td><td id="prev-weather"></td></tr>
         </table>
+
         <div class="form-section-header" style="margin-top:12px">REPCO PERSONNEL</div>
         <table class="preview-table"><thead><tr style="background:#f0f4ff"><td style="font-weight:700;color:#1e3a8a">Position</td><td style="font-weight:700;color:#1e3a8a;text-align:center;width:20%">จำนวน</td></tr></thead><tbody id="prev-p"></tbody></table>
         <div class="form-section-header" style="margin-top:12px">STATE PERSONNEL</div>
@@ -232,13 +272,28 @@
 <script>
 const LOGO_URL = 'https://raw.githubusercontent.com/panupongeng-debug/Daily-Report/main/logo.png';
 
-/* ── Helper: วันปัจจุบัน format YYYY-MM-DD ── */
 function todayStr() {
     const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm   = String(d.getMonth() + 1).padStart(2, '0');
-    const dd   = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── คำนวณชั่วโมงทำงาน ── */
+function calcDuration(start, end) {
+    if (!start || !end) return '--';
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    const totalMin = (eh * 60 + em) - (sh * 60 + sm);
+    if (totalMin <= 0) return '--';
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return m > 0 ? `${h} hrs ${m} min` : `${h} hrs`;
+}
+
+/* ── Format time 07:00 → 07:00 ── */
+function fmtTime(t) {
+    if (!t) return '--';
+    const [h, m] = t.split(':');
+    return `${h}:${m}`;
 }
 
 /* ── PWA ── */
@@ -251,14 +306,17 @@ function todayStr() {
     }
 })();
 
-const APP={
+const APP = {
     photos:[],pc:0,wc:0,ec:0,
     pKeys:['cm','pe','sv','qc'],wKeys:['m','w'],
     deferredPrompt:null,
 
     init(){
-        /* ✅ ตั้งวันปัจจุบันอัตโนมัติตอนเริ่มต้น */
-        document.getElementById('date').value = todayStr();
+        /* ตั้ง default */
+        document.getElementById('date').value      = todayStr();
+        document.getElementById('timeStart').value = '07:00';
+        document.getElementById('timeEnd').value   = '18:00';
+        this.updateDuration();
 
         document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>this.switchTab(t.dataset.tab)));
         const on=(id,fn)=>document.getElementById(id).addEventListener('click',fn);
@@ -273,9 +331,21 @@ const APP={
         on('installBtn',  ()=>this.installPWA());
 
         document.getElementById('photoInput').addEventListener('change',e=>{this.handleFiles(e.target.files);e.target.value='';});
+
+        /* อัปเดต duration เมื่อเปลี่ยน time */
+        document.getElementById('timeStart').addEventListener('change',()=>this.updateDuration());
+        document.getElementById('timeEnd').addEventListener('change',()=>this.updateDuration());
+
         document.querySelectorAll('input:not(#photoInput),select,textarea').forEach(el=>el.addEventListener('input',()=>this.updatePreview()));
         window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();this.deferredPrompt=e;document.getElementById('installBtn').classList.add('show');});
         window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').classList.remove('show');this.toast('✅ ติดตั้ง App สำเร็จ!');});
+        this.updatePreview();
+    },
+
+    updateDuration(){
+        const s = document.getElementById('timeStart').value;
+        const e = document.getElementById('timeEnd').value;
+        document.getElementById('timeDuration').value = calcDuration(s, e);
         this.updatePreview();
     },
 
@@ -359,9 +429,15 @@ const APP={
 
     updatePreview(){
         const proj=this.v('projectName'),date=new Date(this.v('date'));
+        const tStart=this.v('timeStart'), tEnd=this.v('timeEnd');
+        const timeStr = (tStart && tEnd)
+            ? `${fmtTime(tStart)} – ${fmtTime(tEnd)}  (${calcDuration(tStart, tEnd)})`
+            : '--';
+
         document.getElementById('prev-name').textContent=proj;
         document.getElementById('prev-subtitle').textContent=proj;
         document.getElementById('prev-date').textContent=date.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+        document.getElementById('prev-time').textContent=timeStr;
         document.getElementById('prev-loc').textContent=this.v('location')||'Site location';
         document.getElementById('prev-weather').textContent=this.v('weather')||'--';
         document.getElementById('prev-p').innerHTML=this.buildRows(this.pKeys,'p','pc');
@@ -390,6 +466,9 @@ const APP={
         document.querySelectorAll('#wc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
         if(this.v('eq1')) eRows+=`<tr><td>${this.v('eq1')}</td></tr>`;
         document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eRows+=`<tr><td>${el.value}</td></tr>`;});
+
+        const tStart=this.v('timeStart'), tEnd=this.v('timeEnd');
+        const timeStr=`${fmtTime(tStart)} – ${fmtTime(tEnd)}  (${calcDuration(tStart,tEnd)})`;
 
         const photoHtml=this.photos.length
             ?`<div class="pg">${this.photos.map((p,i)=>`<div class="pg-item"><img src="${p}"><span class="pg-num">Photo ${i+1}</span></div>`).join('')}</div>`
@@ -432,13 +511,14 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
     <div class="rh-right">
         <div class="rh-title">Daily Construction Site Report</div>
         <div class="rh-sub">${proj}</div>
-        <div class="badge">📅 ${rawDate.toLocaleDateString('en-GB')}&nbsp;&nbsp;🌤️ ${this.v('weather')||'-'}<br>📍 ${this.v('location')||'-'}</div>
+        <div class="badge">📅 ${rawDate.toLocaleDateString('en-GB')}&nbsp;&nbsp;🌤️ ${this.v('weather')||'-'}<br>📍 ${this.v('location')||'-'}&nbsp;&nbsp;⏱ ${timeStr}</div>
     </div>
 </div>
 <div class="sec">GENERAL INFORMATION</div>
 <table class="gt">
     <tr><td>Project Name</td><td>${proj}</td></tr>
     <tr><td>Date</td><td>${dateStr}</td></tr>
+    <tr><td>Working Hours</td><td>${timeStr}</td></tr>
     <tr><td>Location</td><td>${this.v('location')||'-'}</td></tr>
     <tr><td>Weather Conditions</td><td>${this.v('weather')||'-'}</td></tr>
 </table>
@@ -472,13 +552,15 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
         this.updatePreview();
         const proj=this.v('projectName'),date=new Date(this.v('date'));
         const dateStr=date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+        const tStart=this.v('timeStart'),tEnd=this.v('timeEnd');
+        const timeStr=`${fmtTime(tStart)} – ${fmtTime(tEnd)} (${calcDuration(tStart,tEnd)})`;
         let pSum='',wSum='',eSum='';
         this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pSum+=`  • ${p}: ${n} คน\n`;});
         document.querySelectorAll('#pc input[type="text"]').forEach(el=>{if(!el.value)return;const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';pSum+=`  • ${el.value}: ${n} คน\n`;});
         this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wSum+=`  • ${p}: ${n} คน\n`;});
         if(this.v('eq1')) eSum+=`  • ${this.v('eq1')}\n`;
         document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eSum+=`  • ${el.value}\n`;});
-        const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${pSum||'  -\n'}\n👥 STATE PERSONNEL\n${wSum||'  -\n'}\n🚜 EQUIPMENT\n${eSum||'  -\n'}\n🎯 ACTIVITY\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
+        const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n⏱ ${timeStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${pSum||'  -\n'}\n👥 STATE PERSONNEL\n${wSum||'  -\n'}\n🚜 EQUIPMENT\n${eSum||'  -\n'}\n🎯 ACTIVITY\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
         const lineUrl=`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         if(navigator.share){
             navigator.share({title:this.getFilename(),text:msg}).catch(()=>window.open(lineUrl,'_blank'));
@@ -490,7 +572,7 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
 
     saveDraft(){
         const d={g:{},p:{},w:{},e:[]};
-        ['date','location','projectName','weather','activities','progress'].forEach(f=>d.g[f]=this.v(f));
+        ['date','location','projectName','weather','activities','progress','timeStart','timeEnd'].forEach(f=>d.g[f]=this.v(f));
         this.pKeys.forEach(k=>d.p[k]={pos:this.v(`p-${k}-pos`),n:this.v(`p-${k}-n`)});
         this.wKeys.forEach(k=>d.w[k]={pos:this.v(`w-${k}-pos`),n:this.v(`w-${k}-n`)});
         document.querySelectorAll('#pc .form-row').forEach((r,i)=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) d.p[`x${i}`]={pos:p,n};});
@@ -505,6 +587,7 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
         const d=JSON.parse(localStorage.getItem('dcr_draft'));
         if(!d) return this.toast('❌ No draft found!');
         Object.entries(d.g||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el) el.value=v;});
+        this.updateDuration();
         const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
         this.pKeys.forEach(k=>{document.getElementById(`p-${k}-pos`).value=d.p?.[k]?.pos||pd[k];document.getElementById(`p-${k}-n`).value=d.p?.[k]?.n||'1';});
         const wd={m:'Worker (M)',w:'Worker (W)'};
@@ -519,9 +602,10 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
     clearForm(){
         if(!confirm('Clear all data?')) return;
         document.querySelectorAll('input[type="text"],input[type="number"],select,textarea').forEach(el=>el.value='');
-
-        /* ✅ Clear แล้ว reset เป็นวันปัจจุบันใหม่ */
-        document.getElementById('date').value = todayStr();
+        document.getElementById('date').value      = todayStr();
+        document.getElementById('timeStart').value = '07:00';
+        document.getElementById('timeEnd').value   = '18:00';
+        this.updateDuration();
         document.getElementById('projectName').value='Suwannaphum Rice Co., Ltd. - RISE Project';
         const pd={cm:'Construction Manager',pe:'Project Engineering',sv:'Supervisor',qc:'QC'};
         this.pKeys.forEach(k=>{document.getElementById(`p-${k}-pos`).value=pd[k];document.getElementById(`p-${k}-n`).value='1';});
