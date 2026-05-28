@@ -20,7 +20,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Daily Report">
 <link rel="manifest" id="pwa-manifest">
-<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async></script>
 
 <style>
@@ -222,7 +221,6 @@
                 <button class="btn btn-line"  id="lineBtn"   style="padding:9px 12px;font-size:12px">💬 Share LINE</button>
             </div>
         </div>
-
         <div class="form-section-header">GENERAL INFORMATION</div>
         <table class="preview-table">
             <tr><td>Project:</td><td id="prev-name"></td></tr>
@@ -254,6 +252,7 @@ const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function calcDuration(s,e){if(!s||!e)return '--';const[sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);const m=(eh*60+em)-(sh*60+sm);if(m<=0)return '--';const h=Math.floor(m/60),r=m%60;return r>0?`${h} hrs ${r} min`:`${h} hrs`;}
 function fmtTime(t){if(!t)return '--';const[h,m]=t.split(':');return `${h}:${m}`;}
+function csvCell(v){return `"${String(v||'').replace(/"/g,'""')}"`;}
 
 (function(){
     const m={name:'Daily Construction Report',short_name:'Daily Report',start_url:location.href,display:'standalone',orientation:'portrait',theme_color:'#1e3a8a',background_color:'#f0f4f8',icons:[{src:LOGO_URL,sizes:'192x192',type:'image/png'}]};
@@ -297,214 +296,256 @@ const APP={
         window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();this.deferredPrompt=e;document.getElementById('installBtn').classList.add('show');});
         window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').classList.remove('show');this.toast('✅ ติดตั้ง App สำเร็จ!');});
 
-        // Init Google OAuth เมื่อ script โหลดเสร็จ
         this.initDriveAuth();
         this.updatePreview();
     },
 
-    /* ══════════════════════════════════════
-       GOOGLE DRIVE AUTH
-    ══════════════════════════════════════ */
     initDriveAuth(){
-        const waitGIS=()=>{
+        const wait=()=>{
             if(typeof google!=='undefined'&&google.accounts){
                 this.driveTokenClient=google.accounts.oauth2.initTokenClient({
-                    client_id: DRIVE_CLIENT_ID,
-                    scope: DRIVE_SCOPE,
-                    callback: async(resp)=>{
-                        if(resp.error){
-                            this.toast('❌ Login ไม่สำเร็จ: '+resp.error);
-                            document.getElementById('driveBtn').disabled=false;
-                            document.getElementById('driveBtn').textContent='☁️ Save to Drive';
-                            return;
-                        }
+                    client_id:DRIVE_CLIENT_ID,
+                    scope:DRIVE_SCOPE,
+                    callback:async(resp)=>{
+                        if(resp.error){this.toast('❌ Login ไม่สำเร็จ');document.getElementById('driveBtn').disabled=false;document.getElementById('driveBtn').textContent='☁️ Save to Drive';return;}
                         this.driveToken=resp.access_token;
                         await this.uploadToDrive();
                     },
                 });
-            } else {
-                setTimeout(waitGIS,500);
-            }
+            } else { setTimeout(wait,500); }
         };
-        waitGIS();
+        wait();
     },
 
     /* ══════════════════════════════════════
-       SAVE TO DRIVE — Main entry
+       รวบรวมข้อมูลครบทุก row (แก้ปัญหาหลัก)
+    ══════════════════════════════════════ */
+    collectAllPersonnel(){
+        const rows=[];
+        // Default REPCO
+        const cmPos=this.v('p-cm-pos'), cmN=this.v('p-cm-n');
+        if(cmPos) rows.push(`${cmPos}:${cmN}`);
+        // Extra REPCO จาก "+ Add"
+        document.querySelectorAll('#pc .form-row').forEach(row=>{
+            const pos=row.querySelector('input[type="text"]')?.value?.trim();
+            const n=row.querySelector('input[type="number"]')?.value?.trim()||'0';
+            if(pos) rows.push(`${pos}:${n}`);
+        });
+        return rows.join(' | ');
+    },
+
+    collectAllStatePersonnel(){
+        const rows=[];
+        // Default State
+        this.wKeys.forEach(k=>{
+            const pos=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);
+            if(pos) rows.push(`${pos}:${n}`);
+        });
+        // Extra State จาก "+ Add"
+        document.querySelectorAll('#wc .form-row').forEach(row=>{
+            const pos=row.querySelector('input[type="text"]')?.value?.trim();
+            const n=row.querySelector('input[type="number"]')?.value?.trim()||'0';
+            if(pos) rows.push(`${pos}:${n}`);
+        });
+        return rows.join(' | ');
+    },
+
+    collectAllEquipment(){
+        const rows=[];
+        const eq1=this.v('eq1');
+        if(eq1) rows.push(eq1);
+        // Extra Equipment จาก "+ Add"
+        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{
+            if(el.value?.trim()) rows.push(el.value.trim());
+        });
+        return rows.join(' | ');
+    },
+
+    /* ══════════════════════════════════════
+       DRIVE HELPERS
+    ══════════════════════════════════════ */
+    async driveReq(url,opts={}){
+        const res=await fetch(url,{...opts,headers:{Authorization:`Bearer ${this.driveToken}`,...(opts.headers||{})}});
+        if(res.status===401){this.driveToken=null;throw new Error('401');}
+        return res;
+    },
+
+    async findOrCreateFolder(name,parentId=null){
+        const q=parentId
+            ?`name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
+            :`name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+        const res=await this.driveReq(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`);
+        const data=await res.json();
+        if(data.files?.length>0) return data.files[0].id;
+        const meta={name,mimeType:'application/vnd.google-apps.folder'};
+        if(parentId) meta.parents=[parentId];
+        const cr=await this.driveReq('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(meta)});
+        return (await cr.json()).id;
+    },
+
+    async uploadFile(name,mimeType,content,parentId){
+        const b='REPCO_'+Date.now();
+        const meta=JSON.stringify({name,mimeType,parents:[parentId]});
+        const body=new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n`,`--${b}\r\nContent-Type: ${mimeType}; charset=UTF-8\r\n\r\n`,content,`\r\n--${b}--`]);
+        const res=await this.driveReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink',{method:'POST',headers:{'Content-Type':`multipart/related; boundary=${b}`},body});
+        return res.json();
+    },
+
+    async uploadImageFile(name,base64Data,parentId){
+        const b='REPCO_IMG_'+Date.now();
+        const raw=atob(base64Data.split(',')[1]);
+        const bytes=new Uint8Array(raw.length);
+        for(let i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i);
+        const imgBlob=new Blob([bytes],{type:'image/jpeg'});
+        const meta=JSON.stringify({name,mimeType:'image/jpeg',parents:[parentId]});
+        const body=new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n`,`--${b}\r\nContent-Type: image/jpeg\r\n\r\n`,imgBlob,`\r\n--${b}--`]);
+        const res=await this.driveReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',{method:'POST',headers:{'Content-Type':`multipart/related; boundary=${b}`},body});
+        return res.json();
+    },
+
+    /* ══════════════════════════════════════
+       UPDATE EXCEL LOG — ครบทุก field
+    ══════════════════════════════════════ */
+    async updateExcelLog(rootFolderId){
+        const logName='Daily Report Log.csv';
+        const q=`name='${logName}' and '${rootFolderId}' in parents and trashed=false`;
+        const searchRes=await this.driveReq(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`);
+        const searchData=await searchRes.json();
+
+        const tS=this.v('timeStart'),tE=this.v('timeEnd');
+        const rawDate=new Date(this.v('date'));
+
+        // ✅ รวบรวมข้อมูลครบทุก row
+        const repcoAll   = this.collectAllPersonnel();
+        const stateAll   = this.collectAllStatePersonnel();
+        const equipAll   = this.collectAllEquipment();
+
+        // คำนวณรวมจำนวนคน
+        const repcoTotal = this.calcTotalPeople('repco');
+        const stateTotal = this.calcTotalPeople('state');
+
+        // CSV row — 15 columns
+        const newRow=[
+            csvCell(rawDate.toLocaleDateString('en-GB')),
+            csvCell(rawDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})),
+            csvCell(`${fmtTime(tS)} - ${fmtTime(tE)}`),
+            csvCell(calcDuration(tS,tE)),
+            csvCell(this.v('projectName')),
+            csvCell(this.v('location')),
+            csvCell(this.v('weather')),
+            csvCell(repcoAll),        // ✅ ครบทุกตำแหน่ง REPCO
+            csvCell(repcoTotal),      // ✅ รวมคน REPCO
+            csvCell(stateAll),        // ✅ ครบทุกตำแหน่ง State
+            csvCell(stateTotal),      // ✅ รวมคน State
+            csvCell(equipAll),        // ✅ ครบทุกเครื่องจักร
+            csvCell(this.v('activities')),
+            csvCell(this.v('progress')),
+            csvCell(this.photos.length),
+            csvCell(new Date().toLocaleString('en-GB')),
+        ].join(',');
+
+        // Header แถวแรก — 16 columns ตรงกับ data
+        const headers=[
+            '"Date"','"Date (Full)"','"Time Start-End"','"Duration"',
+            '"Project Name"','"Location"','"Weather"',
+            '"REPCO Personnel (Position:Count)"','"REPCO Total (pax)"',
+            '"State Personnel (Position:Count)"','"State Total (pax)"',
+            '"Equipment"',
+            '"Daily Activity & Goals"','"Progress Summary"',
+            '"Photos Count"','"Generated At"'
+        ].join(',');
+
+        let csvContent='';
+        if(searchData.files?.length>0){
+            const fileId=searchData.files[0].id;
+            const dlRes=await this.driveReq(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+            const existing=await dlRes.text();
+            csvContent=existing+'\n'+newRow;
+            // อัปเดตไฟล์เดิม
+            await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,{
+                method:'PATCH',
+                headers:{Authorization:`Bearer ${this.driveToken}`,'Content-Type':'text/csv; charset=utf-8'},
+                body:'\uFEFF'+csvContent,
+            });
+        } else {
+            // สร้างไฟล์ใหม่
+            csvContent=headers+'\n'+newRow;
+            await this.uploadFile(logName,'text/csv','\uFEFF'+csvContent,rootFolderId);
+        }
+    },
+
+    // ✅ คำนวณรวมจำนวนคน
+    calcTotalPeople(type){
+        let total=0;
+        if(type==='repco'){
+            total+=parseInt(this.v('p-cm-n'))||0;
+            document.querySelectorAll('#pc .form-row').forEach(row=>{
+                total+=parseInt(row.querySelector('input[type="number"]')?.value||0);
+            });
+        } else {
+            this.wKeys.forEach(k=>{total+=parseInt(this.v(`w-${k}-n`))||0;});
+            document.querySelectorAll('#wc .form-row').forEach(row=>{
+                total+=parseInt(row.querySelector('input[type="number"]')?.value||0);
+            });
+        }
+        return total;
+    },
+
+    /* ══════════════════════════════════════
+       MAIN UPLOAD
     ══════════════════════════════════════ */
     saveToDrive(){
         this.updatePreview();
         const btn=document.getElementById('driveBtn');
-        btn.disabled=true;
-        btn.textContent='⏳ กำลังเตรียม...';
-
-        if(!this.driveTokenClient){
-            this.toast('❌ Google API ยังไม่พร้อม กรุณารอสักครู่');
-            btn.disabled=false;
-            btn.textContent='☁️ Save to Drive';
-            return;
-        }
-
-        if(this.driveToken){
-            // มี token แล้ว — upload เลย
-            this.uploadToDrive();
-        } else {
-            // ขอ token ใหม่ (silent ก่อน ถ้าไม่ได้ค่อย prompt)
-            this.driveTokenClient.requestAccessToken({prompt:''});
-        }
+        btn.disabled=true; btn.textContent='⏳ กำลังเตรียม...';
+        if(!this.driveTokenClient){this.toast('❌ Google API ยังไม่พร้อม');btn.disabled=false;btn.textContent='☁️ Save to Drive';return;}
+        if(this.driveToken){ this.uploadToDrive(); }
+        else { this.driveTokenClient.requestAccessToken({prompt:'consent'}); }
     },
 
-    /* ══════════════════════════════════════
-       BUILD REPORT HTML (สำหรับ upload)
-    ══════════════════════════════════════ */
-    buildReportHtml(){
-        let pRows='',wRows='',eRows='';
-        this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
-        document.querySelectorAll('#pc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
-        this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
-        document.querySelectorAll('#wc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
-        if(this.v('eq1')) eRows+=`<tr><td>${this.v('eq1')}</td></tr>`;
-        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eRows+=`<tr><td>${el.value}</td></tr>`;});
-
-        const tS=this.v('timeStart'),tE=this.v('timeEnd');
-        const timeStr=`${fmtTime(tS)} – ${fmtTime(tE)}  (${calcDuration(tS,tE)})`;
-
-        let photoRows='';
-        for(let i=0;i<this.photos.length;i+=2){
-            const a=this.photos[i],b=this.photos[i+1];
-            photoRows+=`<div class="pg-row"><div class="pg-cell"><img src="${a}"><span class="pg-num">Photo ${i+1}</span></div>${b?`<div class="pg-cell"><img src="${b}"><span class="pg-num">Photo ${i+2}</span></div>`:'<div class="pg-cell"></div>'}</div>`;
-        }
-        const photoHtml=this.photos.length?`<div class="pg">${photoRows}</div>`:'<p class="empty">No photos uploaded</p>';
-
-        const proj=this.v('projectName'),rawDate=new Date(this.v('date')),fn=this.getFilename();
-        const dateStr=rawDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-        const yr=new Date().getFullYear();
-
-        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${fn}</title>
-<style>
-@page{size:A4 portrait;margin:14mm 16mm 16mm 16mm}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:210mm;font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#111;background:white;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.rpt-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:14px;border-bottom:3px solid #1e3a8a}
-.rpt-logo{height:46px;width:auto;object-fit:contain}
-.rpt-title{font-size:14pt;font-weight:900;color:#1e3a8a;line-height:1.2;text-align:right}
-.rpt-sub{font-size:8.5pt;color:#555;margin-top:3px;text-align:right}
-.rpt-badge{margin-top:6px;display:inline-block;background:#1e3a8a!important;color:white!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;padding:4px 10px;border-radius:4px;font-size:8pt;font-weight:700;line-height:1.65;text-align:left}
-.rpt-section{margin-top:10px;page-break-inside:avoid;break-inside:avoid}
-.rpt-section.breakable{page-break-inside:auto;break-inside:auto}
-.sec-bar{padding:6px 10px;font-size:9.5pt;font-weight:700;color:white!important;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:3px 3px 0 0;page-break-after:avoid;break-after:avoid}
-table{width:100%;border-collapse:collapse;font-size:10pt}
-th,td{border:1px solid #bbb;padding:5px 8px;vertical-align:middle}
-thead tr{background:#dce3ea!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-thead th{font-weight:700;font-size:9.5pt}
-.tc{text-align:center;width:20%;font-weight:700}
-tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.gt td:first-child{font-weight:700;width:32%;background:#e8eef8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.text-box{border:1px solid #bbb;border-top:none;padding:8px 10px;font-size:10pt;min-height:48px;white-space:pre-wrap;line-height:1.55;background:#fafbff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.pg{border:1px solid #bbb;border-top:none;padding:8px}
-.pg-row{display:flex;gap:8px;margin-bottom:8px;page-break-inside:avoid;break-inside:avoid}
-.pg-row:last-child{margin-bottom:0}
-.pg-cell{flex:1;display:flex;flex-direction:column;align-items:center}
-.pg-cell img{width:100%;max-height:95mm;object-fit:contain;border:1px solid #ccc;display:block}
-.pg-num{font-size:8pt;color:#666;margin-top:3px;text-align:center}
-.empty{border:1px solid #bbb;border-top:none;padding:12px;color:#aaa;font-size:9pt}
-.rpt-footer{margin-top:16px;padding-top:7px;border-top:2px solid #1e3a8a;display:flex;justify-content:space-between;align-items:center;font-size:8pt;color:#555;page-break-inside:avoid;break-inside:avoid}
-.copy{font-weight:700;color:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-.copy-red{color:#dc2626!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-</style></head><body>
-<div class="rpt-header">
-    <img class="rpt-logo" src="${LOGO_URL}" alt="REPCO NEX" onerror="this.style.display='none'">
-    <div>
-        <div class="rpt-title">Daily Construction Site Report</div>
-        <div class="rpt-sub">${proj}</div>
-        <div class="rpt-badge">📅 ${rawDate.toLocaleDateString('en-GB')} &nbsp;|&nbsp; ⏱ ${timeStr}<br>🌤️ ${this.v('weather')||'-'} &nbsp;|&nbsp; 📍 ${this.v('location')||'-'}</div>
-    </div>
-</div>
-<div class="rpt-section"><div class="sec-bar">GENERAL INFORMATION</div><table class="gt"><tr><td>Project Name</td><td>${proj}</td></tr><tr><td>Date</td><td>${dateStr}</td></tr><tr><td>Working Hours</td><td>${timeStr}</td></tr><tr><td>Location</td><td>${this.v('location')||'-'}</td></tr><tr><td>Weather Conditions</td><td>${this.v('weather')||'-'}</td></tr></table></div>
-<div class="rpt-section"><div class="sec-bar">REPCO PERSONNEL</div><table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead><tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table></div>
-<div class="rpt-section"><div class="sec-bar">STATE PERSONNEL</div><table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead><tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table></div>
-<div class="rpt-section"><div class="sec-bar">EQUIPMENT IN USE</div><table><thead><tr><th>Equipment / Machinery</th></tr></thead><tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table></div>
-<div class="rpt-section breakable"><div class="sec-bar">DAILY ACTIVITY &amp; GOALS</div><div class="text-box">${this.v('activities')||'-'}</div></div>
-<div class="rpt-section breakable"><div class="sec-bar">PROGRESS SUMMARY</div><div class="text-box">${this.v('progress')||'-'}</div></div>
-<div class="rpt-section breakable"><div class="sec-bar">SITE PHOTOS (${this.photos.length} รูป)</div>${photoHtml}</div>
-<div class="rpt-footer"><div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div><div style="text-align:right"><div>${fn}</div><div>Generated: ${new Date().toLocaleString('en-GB')}</div></div></div>
-</body></html>`;
-    },
-
-    /* ══════════════════════════════════════
-       UPLOAD TO GOOGLE DRIVE
-    ══════════════════════════════════════ */
     async uploadToDrive(){
         const btn=document.getElementById('driveBtn');
-        btn.textContent='⏳ กำลังอัปโหลด...';
-        this.toast('☁️ กำลังอัปโหลดไป Google Drive...', 8000);
+        try{
+            const fn=this.getFilename();
+            const d=new Date(this.v('date'));
+            const dayStr=`${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(-2)}`;
 
-        try {
-            const fn = this.getFilename() + '.html';
-            const htmlContent = this.buildReportHtml();
-            const blob = new Blob([htmlContent], {type:'text/html;charset=utf-8'});
+            // 1. Root folder
+            btn.textContent='⏳ สร้าง Folder...';
+            const rootId=await this.findOrCreateFolder('Daily report');
 
-            // Multipart upload to Drive
-            const boundary = '-------REPCO_BOUNDARY_' + Date.now();
-            const metadata = JSON.stringify({
-                name: fn,
-                mimeType: 'text/html',
-                description: `Daily Report - ${this.v('projectName')} - ${this.v('date')}`
-            });
+            // 2. อัปโหลด Report HTML
+            btn.textContent='⏳ อัปโหลด Report...';
+            await this.uploadFile(fn+'.html','text/html',this.buildReportHtml(),rootId);
 
-            // Build multipart body
-            const metaPart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`;
-            const filePart = `--${boundary}\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n`;
-            const endPart  = `\r\n--${boundary}--`;
+            // 3. อัปเดต Excel Log
+            btn.textContent='⏳ บันทึก Log...';
+            await this.updateExcelLog(rootId);
 
-            const metaBlob = new Blob([metaPart], {type:'text/plain'});
-            const filePartBlob = new Blob([filePart], {type:'text/plain'});
-            const endBlob = new Blob([endPart], {type:'text/plain'});
-            const body = new Blob([metaBlob, filePartBlob, blob, endBlob]);
-
-            const res = await fetch(
-                'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${this.driveToken}`,
-                        'Content-Type': `multipart/related; boundary=${boundary}`,
-                    },
-                    body: body,
+            // 4. รูปภาพ
+            if(this.photos.length>0){
+                const photosFolderId=await this.findOrCreateFolder('Photos',rootId);
+                const dayFolderId=await this.findOrCreateFolder(`Photos_${dayStr}`,photosFolderId);
+                for(let i=0;i<this.photos.length;i++){
+                    btn.textContent=`⏳ รูป ${i+1}/${this.photos.length}...`;
+                    await this.uploadImageFile(`${fn}_Photo${String(i+1).padStart(2,'0')}.jpg`,this.photos[i],dayFolderId);
                 }
-            );
-
-            if(res.status === 401){
-                // Token หมดอายุ — ขอใหม่
-                this.driveToken = null;
-                this.driveTokenClient.requestAccessToken({prompt:''});
-                btn.disabled=false;
-                btn.textContent='☁️ Save to Drive';
-                return;
             }
 
-            if(!res.ok){
-                throw new Error(`HTTP ${res.status}`);
-            }
+            btn.disabled=false; btn.textContent='☁️ Save to Drive';
+            this.toast(`✅ สำเร็จ! Report + Log + ${this.photos.length} รูป`);
 
-            const file = await res.json();
-            btn.disabled=false;
-            btn.textContent='☁️ Save to Drive';
-            this.toast(`✅ อัปโหลดสำเร็จ! "${file.name}"`);
-
-            // เปิดไฟล์ใน Google Drive
             setTimeout(()=>{
-                if(confirm(`✅ บันทึกสำเร็จ!\n\nไฟล์: ${file.name}\n\nต้องการเปิดดูใน Google Drive ไหม?`)){
-                    window.open(file.webViewLink, '_blank');
+                if(confirm(`✅ บันทึกสำเร็จ!\n\n📁 Daily report/\n   📄 ${fn}.html\n   📊 Daily Report Log.csv\n   📷 Photos/Photos_${dayStr}/ (${this.photos.length} รูป)\n\nเปิด Google Drive ไหม?`)){
+                    window.open('https://drive.google.com/drive/my-drive','_blank');
                 }
-            }, 500);
+            },500);
 
         } catch(err){
-            console.error('Drive upload error:', err);
-            this.driveToken = null; // reset token
-            btn.disabled=false;
-            btn.textContent='☁️ Save to Drive';
-            this.toast('❌ อัปโหลดไม่สำเร็จ: ' + err.message);
+            console.error(err);
+            if(err.message==='401'){ this.driveToken=null; this.driveTokenClient.requestAccessToken({prompt:'consent'}); }
+            else { this.toast('❌ Error: '+err.message); }
+            btn.disabled=false; btn.textContent='☁️ Save to Drive';
         }
     },
 
@@ -619,6 +660,56 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
         return `Daily report ${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(-2)}`;
     },
 
+    buildReportHtml(){
+        let pRows='',wRows='',eRows='';
+        this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        document.querySelectorAll('#pc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) pRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        document.querySelectorAll('#wc .form-row').forEach(r=>{const p=r.querySelector('input[type="text"]')?.value,n=r.querySelector('input[type="number"]')?.value||'0';if(p) wRows+=`<tr><td>${p}</td><td>${n}</td></tr>`;});
+        if(this.v('eq1')) eRows+=`<tr><td>${this.v('eq1')}</td></tr>`;
+        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eRows+=`<tr><td>${el.value}</td></tr>`;});
+        let photoRows='';
+        for(let i=0;i<this.photos.length;i+=2){const a=this.photos[i],b=this.photos[i+1];photoRows+=`<div class="pg-row"><div class="pg-cell"><img src="${a}"><span class="pg-num">Photo ${i+1}</span></div>${b?`<div class="pg-cell"><img src="${b}"><span class="pg-num">Photo ${i+2}</span></div>`:'<div class="pg-cell"></div>'}</div>`;}
+        const photoHtml=this.photos.length?`<div class="pg">${photoRows}</div>`:'<p class="empty">No photos uploaded</p>';
+        const proj=this.v('projectName'),rawDate=new Date(this.v('date')),fn=this.getFilename();
+        const dateStr=rawDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+        const tS=this.v('timeStart'),tE=this.v('timeEnd');
+        const timeStr=`${fmtTime(tS)} – ${fmtTime(tE)}  (${calcDuration(tS,tE)})`;
+        const yr=new Date().getFullYear();
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${fn}</title><style>
+@page{size:A4 portrait;margin:14mm 16mm 16mm 16mm}*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:210mm;font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#111;background:white;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.rpt-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:14px;border-bottom:3px solid #1e3a8a}
+.rpt-logo{height:46px;width:auto;object-fit:contain}.rpt-title{font-size:14pt;font-weight:900;color:#1e3a8a;line-height:1.2;text-align:right}
+.rpt-sub{font-size:8.5pt;color:#555;margin-top:3px;text-align:right}
+.rpt-badge{margin-top:6px;display:inline-block;background:#1e3a8a!important;color:white!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;padding:4px 10px;border-radius:4px;font-size:8pt;font-weight:700;line-height:1.65;text-align:left}
+.rpt-section{margin-top:10px;page-break-inside:avoid;break-inside:avoid}.rpt-section.breakable{page-break-inside:auto;break-inside:auto}
+.sec-bar{padding:6px 10px;font-size:9.5pt;font-weight:700;color:white!important;background:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:3px 3px 0 0;page-break-after:avoid;break-after:avoid}
+table{width:100%;border-collapse:collapse;font-size:10pt}th,td{border:1px solid #bbb;padding:5px 8px;vertical-align:middle}
+thead tr{background:#dce3ea!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}thead th{font-weight:700;font-size:9.5pt}
+.tc{text-align:center;width:20%;font-weight:700}tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.gt td:first-child{font-weight:700;width:32%;background:#e8eef8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.text-box{border:1px solid #bbb;border-top:none;padding:8px 10px;font-size:10pt;min-height:48px;white-space:pre-wrap;line-height:1.55;background:#fafbff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.pg{border:1px solid #bbb;border-top:none;padding:8px}.pg-row{display:flex;gap:8px;margin-bottom:8px;page-break-inside:avoid;break-inside:avoid}.pg-row:last-child{margin-bottom:0}
+.pg-cell{flex:1;display:flex;flex-direction:column;align-items:center}.pg-cell img{width:100%;max-height:95mm;object-fit:contain;border:1px solid #ccc;display:block}
+.pg-num{font-size:8pt;color:#666;margin-top:3px;text-align:center}.empty{border:1px solid #bbb;border-top:none;padding:12px;color:#aaa;font-size:9pt}
+.rpt-footer{margin-top:16px;padding-top:7px;border-top:2px solid #1e3a8a;display:flex;justify-content:space-between;align-items:center;font-size:8pt;color:#555;page-break-inside:avoid;break-inside:avoid}
+.copy{font-weight:700;color:#1e3a8a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.copy-red{color:#dc2626!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+</style></head><body>
+<div class="rpt-header"><img class="rpt-logo" src="${LOGO_URL}" alt="REPCO NEX" onerror="this.style.display='none'"><div><div class="rpt-title">Daily Construction Site Report</div><div class="rpt-sub">${proj}</div><div class="rpt-badge">📅 ${rawDate.toLocaleDateString('en-GB')} &nbsp;|&nbsp; ⏱ ${timeStr}<br>🌤️ ${this.v('weather')||'-'} &nbsp;|&nbsp; 📍 ${this.v('location')||'-'}</div></div></div>
+<div class="rpt-section"><div class="sec-bar">GENERAL INFORMATION</div><table class="gt"><tr><td>Project Name</td><td>${proj}</td></tr><tr><td>Date</td><td>${dateStr}</td></tr><tr><td>Working Hours</td><td>${timeStr}</td></tr><tr><td>Location</td><td>${this.v('location')||'-'}</td></tr><tr><td>Weather Conditions</td><td>${this.v('weather')||'-'}</td></tr></table></div>
+<div class="rpt-section"><div class="sec-bar">REPCO PERSONNEL</div><table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead><tbody>${pRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table></div>
+<div class="rpt-section"><div class="sec-bar">STATE PERSONNEL</div><table><thead><tr><th>Position</th><th class="tc">จำนวน (คน)</th></tr></thead><tbody>${wRows||'<tr><td colspan="2" style="color:#aaa;text-align:center">-</td></tr>'}</tbody></table></div>
+<div class="rpt-section"><div class="sec-bar">EQUIPMENT IN USE</div><table><thead><tr><th>Equipment / Machinery</th></tr></thead><tbody>${eRows||'<tr><td style="color:#aaa">-</td></tr>'}</tbody></table></div>
+<div class="rpt-section breakable"><div class="sec-bar">DAILY ACTIVITY &amp; GOALS</div><div class="text-box">${this.v('activities')||'-'}</div></div>
+<div class="rpt-section breakable"><div class="sec-bar">PROGRESS SUMMARY</div><div class="text-box">${this.v('progress')||'-'}</div></div>
+<div class="rpt-section breakable"><div class="sec-bar">SITE PHOTOS (${this.photos.length} รูป)</div>${photoHtml}</div>
+<div class="rpt-footer"><div class="copy">© ${yr} REPCO NEX <span class="copy-red">INDUSTRIAL SOLUTIONS</span>. All Rights Reserved.</div><div style="text-align:right"><div>${fn}</div><div>Generated: ${new Date().toLocaleString('en-GB')}</div></div></div>
+<script>window.addEventListener('load',function(){document.title='${fn}';setTimeout(function(){window.print();},600);});<\/script>
+</body></html>`;
+    },
+
     printReport(){
         this.updatePreview();
         const html=this.buildReportHtml();
@@ -635,13 +726,7 @@ tr:nth-child(even) td{background:#f5f7ff!important;-webkit-print-color-adjust:ex
         const dateStr=date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
         const tS=this.v('timeStart'),tE=this.v('timeEnd');
         const timeStr=`${fmtTime(tS)} – ${fmtTime(tE)} (${calcDuration(tS,tE)})`;
-        let pSum='',wSum='',eSum='';
-        this.pKeys.forEach(k=>{const p=this.v(`p-${k}-pos`),n=this.v(`p-${k}-n`);if(p) pSum+=`  • ${p}: ${n} คน\n`;});
-        document.querySelectorAll('#pc input[type="text"]').forEach(el=>{if(!el.value)return;const n=el.closest('.form-row')?.querySelector('input[type="number"]')?.value||'0';pSum+=`  • ${el.value}: ${n} คน\n`;});
-        this.wKeys.forEach(k=>{const p=this.v(`w-${k}-pos`),n=this.v(`w-${k}-n`);if(p) wSum+=`  • ${p}: ${n} คน\n`;});
-        if(this.v('eq1')) eSum+=`  • ${this.v('eq1')}\n`;
-        document.querySelectorAll('#ec input[type="text"]').forEach(el=>{if(el.value) eSum+=`  • ${el.value}\n`;});
-        const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n⏱ ${timeStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${pSum||'  -\n'}\n👥 STATE PERSONNEL\n${wSum||'  -\n'}\n🚜 EQUIPMENT\n${eSum||'  -\n'}\n🎯 DAILY ACTIVITY & GOALS\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
+        const msg=`📋 ${this.getFilename()}\n${'─'.repeat(30)}\n🏗️ ${proj}\n📅 ${dateStr}\n⏱ ${timeStr}\n📍 ${this.v('location')||'-'}\n🌤️ ${this.v('weather')||'-'}\n\n👨‍💼 REPCO PERSONNEL\n${this.collectAllPersonnel().split(' | ').map(r=>`  • ${r}`).join('\n')}\n  รวม: ${this.calcTotalPeople('repco')} คน\n\n👥 STATE PERSONNEL\n${this.collectAllStatePersonnel().split(' | ').map(r=>`  • ${r}`).join('\n')}\n  รวม: ${this.calcTotalPeople('state')} คน\n\n🚜 EQUIPMENT\n${this.collectAllEquipment().split(' | ').map(r=>`  • ${r}`).join('\n')||'  -'}\n\n🎯 DAILY ACTIVITY & GOALS\n${this.v('activities')||'-'}\n\n📊 PROGRESS\n${this.v('progress')||'-'}\n\n📸 ${this.photos.length} รูป\n⏰ ${new Date().toLocaleString('th-TH')}`;
         const lineUrl=`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         if(navigator.share){navigator.share({title:this.getFilename(),text:msg}).catch(()=>window.open(lineUrl,'_blank'));}
         else{window.open(lineUrl,'_blank');this.toast('💬 เปิด LINE เพื่อส่งรายงาน...');}
@@ -699,7 +784,10 @@ document.readyState==='loading'
 </script>
 
 							<script>
-                            	
+                            	collectAllPersonnel()      // REPCO: default + extra rows
+collectAllStatePersonnel() // State: default + extra rows  
+collectAllEquipment()      // Equipment: eq1 + extra rows
+calcTotalPeople(type)      // รวมจำนวนคน REPCO/State
 							</script>
                         </body>
                         </html>
